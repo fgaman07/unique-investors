@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-800 antialiased font-sans;
+  }
+}
+
+/* Reusable Legacy Table Classes to match screenshots exactly */
+.legacy-table {
+  @apply w-full border-collapse border border-gray-300 text-sm whitespace-nowrap;
+}
+.legacy-table th {
+  @apply bg-brand-tableHeader text-white border border-gray-300 px-4 py-2 font-medium text-left align-middle;
+}
+.legacy-table td {
+  @apply border border-gray-300 px-4 py-2 align-middle;
+}
+.legacy-table tbody tr:nth-child(even) {
+  @apply bg-brand-tableRowAlt;
+}

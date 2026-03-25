@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  AGENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum PropertyType {
+  PLOT
+  SHOP
+}
+
+enum PropertyStatus {
+  PENDING
+  BOOKED
+}
+
+enum EmiStatus {
+  PENDING
+  PAID
+}
+
+enum LedgerStatus {
+  PENDING
+  RELEASED
+}
+
+// Phase 1: Auth & User Network (MLM Hierarchy)
+model User {
+  id             String    @id @default(uuid())
+  userId         String    @unique // e.g. "isbuildtech11804"
+  email          String?   @unique
+  password       String
+  name           String
+  mobile         String    @unique
+  panNo          String?
+  role           UserRole  @default(AGENT)
+  status         UserStatus @default(ACTIVE)
+  rank           String    @default("Associate") // Associate, Manager, etc.
+
+  sponsorId      String?
+  sponsor        User?     @relation("SponsorNetwork", fields: [sponsorId], references: [id], onDelete: SetNull)
+  downline       User[]    @relation("SponsorNetwork")
+
+  joiningDate    DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  sales          Sale[]    @relation("AgentSales")
+  commissions    CommissionLedger[]
+}
+
+// Phase 2: Inventory & Real Estate
+model Project {
+  id             String    @id @default(uuid())
+  projectNo      String    @unique
+  name           String    // e.g. "I&S Dream Homes Highway"
+  blocks         Block[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Block {
+  id             String    @id @default(uuid())
+  name           String    // A, B, C, D
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  properties     Property[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([projectId, name])
+}
+
+model Property {
+  id             String    @id @default(uuid())
+  propertyNo     String    @unique // e.g. B-1
+  type           PropertyType
+  sizeSqYards    Float
+  ratePerSqYard  Float
+  plc            Float     @default(0) // Preferential Location Charges
+  totalAmount    Float
+  dimension      String?
+  status         PropertyStatus @default(PENDING)
+
+  blockId        String
+  block          Block     @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  sales          Sale[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// Phase 3: Financials & Sales
+model Sale {
+  id             String    @id @default(uuid())
+  receiptNo      String    @unique
+  propertyId     String
+  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+
+  agentId        String
+  agent          User      @relation("AgentSales", fields: [agentId], references: [id], onDelete: Restrict)
+
+  totalAmount    Float
+  paidAmount     Float     @default(0)
+  saleDate       DateTime  @default(now())
+
+  emis           EMI[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model EMI {
+  id             String    @id @default(uuid())
+  saleId         String
+  sale           Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  amount         Float
+  paymentDate    DateTime?
+  status         EmiStatus @default(PENDING)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model CommissionLedger {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  amount         Float
+  incomeType     String    // e.g. "Direct Sale", "Level Incentive", "Promotional"
+  paymentMode    String?   // Cheque, NEFT
+  remarks        String?
+  status         LedgerStatus @default(PENDING)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model CompanySettings {
+  id               String   @id @default(cuid())
+  companyName      String
+  registrationNo   String?
+  address          String?
+  supportEmail     String?
+  contactNumber    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model CommissionSetting {
+  id         String   @id @default(cuid())
+  level      Int      @unique
+  label      String
+  percentage Float
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
