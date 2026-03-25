@@ -37,7 +37,7 @@ app.get('/api/health', async (_req: Request, res: Response) => {
       status: 'Operational',
       database: 'Connected',
       timestamp: new Date().toISOString(),
-      message: 'I&S BuildTech Backend API is running successfully.',
+      message: 'Unique Investors Backend API is running successfully.',
     });
   } catch (error) {
     res.status(503).json({
@@ -55,5 +55,5 @@ app.use((_req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`[Server] I&S BuildTech API running on http://localhost:${PORT}`);
+  console.log(`[Server] Unique Investors API running on http://localhost:${PORT}`);
 });

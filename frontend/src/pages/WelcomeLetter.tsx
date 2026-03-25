@@ -83,14 +83,14 @@ const WelcomeLetter = () => {
                         <div className="relative w-24 h-24 flex-shrink-0 flex items-center justify-center">
                             <img
                                 src={logo}
-                                alt="I & S Buildtech Logo"
+                                alt="Unique Investors Logo"
                                 className="h-24 object-contain"
                             />
                         </div>
 
                         <div className="flex flex-col">
                             <h1 className="text-[34px] font-serif font-black text-[#2E5B9A] leading-tight tracking-tight">
-                                I&S BUILDTECH PVT. LTD.
+                                UNIQUE INVESTORS PVT. LTD.
                             </h1>
                             <p className="text-[#F37021] italic text-[20px] font-serif font-bold tracking-[0.15em] leading-normal uppercase">
                                 WHERE DREAMS COME TRUE
@@ -126,8 +126,8 @@ const WelcomeLetter = () => {
                     <div className="relative py-12 mb-8 min-h-[220px] border-y border-gray-100 flex items-center">
                         {/* High-Fidelity Watermark - Using CSS text for simplicity if icons aren't reliable */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center opacity-[0.06] pointer-events-none select-none z-0 text-center watermark-print">
-                            <span className="text-[120px] font-black leading-none select-none">I&S</span>
-                            <h2 className="text-2xl font-black mt-1">BUILDTECH PVT. LTD.</h2>
+                            <span className="text-[120px] font-black leading-none select-none">UNIQUE INVESTORS</span>
+                            <h2 className="text-2xl font-black mt-1">PVT. LTD.</h2>
                         </div>
 
                         {/* Details Grid */}
@@ -163,13 +163,13 @@ const WelcomeLetter = () => {
 
                     {/* Closing Section */}
                     <div className="text-[13px] leading-[1.5] mb-8 text-black font-medium text-justify">
-                        Assuring you of the best services always and wishing you continued success in your journey with I&S Buildtech Pvt. Ltd.. We look forward to a long-term association and prosperous future, together.
+                        Assuring you of the best services always and wishing you continued success in your journey with Unique Investors Pvt. Ltd.. We look forward to a long-term association and prosperous future, together.
                     </div>
 
                     {/* Best Regards */}
                     <div className="mb-12">
                         <p className="text-[14px] font-bold text-gray-900">Best Regards ,</p>
-                        <p className="text-[14px] font-bold text-gray-900 mt-4 tracking-wide uppercase">I&S Buildtech Pvt. Ltd.</p>
+                        <p className="text-[14px] font-bold text-gray-900 mt-4 tracking-wide uppercase">Unique Investors Pvt. Ltd.</p>
                     </div>
 
                     {/* Office and Legal Footer */}
@@ -178,8 +178,8 @@ const WelcomeLetter = () => {
                         <p>Netaji Subhash Place, Pitampura, New Delhi - 110034</p>
                         <p className="font-bold">Tel. No. : 011-41444649</p>
                         <div className="flex justify-center gap-6 mt-2 font-bold text-[#2E5B9A]">
-                            <p>Website: www.iandsbuildtech.com</p>
-                            <p>Email: Info@iandsbuildtech.com</p>
+                            <p>Website: www.uniqueinvestors.com</p>
+                            <p>Email: Info@uniqueinvestors.com</p>
                         </div>
 
                         {/* Legal Block */}

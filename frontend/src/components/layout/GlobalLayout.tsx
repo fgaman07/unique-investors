@@ -21,7 +21,7 @@ const GlobalLayout = () => {
         
         {/* 4. Exact Footer Signature */}
         <footer className="py-2 text-center text-xs text-gray-500 border-t bg-white">
-          &copy; iandsbuildtech PVT. LTD All Rights Reserved 2026
+          &copy; uniqueinvestors PVT. LTD All Rights Reserved 2026
         </footer>
       </div>
     </div>

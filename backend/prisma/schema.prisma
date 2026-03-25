@@ -44,7 +44,7 @@ enum LedgerStatus {
 // Phase 1: Auth & User Network (MLM Hierarchy)
 model User {
   id             String    @id @default(uuid())
-  userId         String    @unique // e.g. "isbuildtech11804"
+  userId         String    @unique // e.g. "uniqueinvestors11804"
   email          String?   @unique
   password       String
   name           String
@@ -76,7 +76,7 @@ model User {
 model Project {
   id             String    @id @default(uuid())
   projectNo      String    @unique
-  name           String    // e.g. "I&S Dream Homes Highway"
+  name           String    // e.g. "Unique Investors Dream Homes Highway"
   blocks         Block[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt

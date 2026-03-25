@@ -107,17 +107,17 @@ const Dashboard = () => {
         </div>
 
         <div className="lg:col-span-2 bg-white border rounded shadow-sm p-6">
-          <h3 className="text-xl font-bold text-[#2E5B9A] mb-4 border-b pb-2">Welcome to I&S Buildtech</h3>
+          <h3 className="text-xl font-bold text-[#2E5B9A] mb-4 border-b pb-2">Welcome to Unique Investors</h3>
           <div className="text-sm text-gray-600 leading-relaxed space-y-4 text-justify">
             <p>
-              We are I & S Buildtech Pvt. Ltd., a leading Real Estate Consultants group. We specialize in 
+              We are Unique Investors Pvt. Ltd., a leading Real Estate Consultants group. We specialize in 
               services related to the purchase of properties, investment, advisory services, property 
               valuation, and assisting clients.
             </p>
             <p>
-              I & S Buildtech Pvt. Ltd. began with a long-term thinking by a group of entrepreneurs, 
+              Unique Investors Pvt. Ltd. began with a long-term thinking by a group of entrepreneurs, 
               who dreamt big and stuck to their vision relentlessly. The result was the creation of 
-              I & S Buildtech Pvt. Ltd., having its base in Delhi and very soon expanding all over 
+              Unique Investors Pvt. Ltd., having its base in Delhi and very soon expanding all over 
               the country.
             </p>
           </div>
@@ -139,7 +139,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Recent Notices</h3>
           <ul className="space-y-3 text-sm text-gray-600">
             <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Q1 2026 Promotional Bonus eligibility ends on March 31st.</li>
-            <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Welcome to the new I&S Buildtech unified portal.</li>
+            <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Welcome to the new Unique Investors unified portal.</li>
             <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Phase 2 properties in Block D are now open for booking.</li>
           </ul>
         </div>

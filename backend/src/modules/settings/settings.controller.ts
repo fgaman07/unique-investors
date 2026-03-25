@@ -23,10 +23,10 @@ const commissionSettingsSchema = z.object({
 });
 
 const defaultCompanySettings = {
-  companyName: 'I&S Buildtech Pvt. Ltd.',
+  companyName: 'Unique Investors Pvt. Ltd.',
   registrationNo: 'U70100DL2026PTC000000',
   address: '102, Dream Plaza, Highway Road, Delhi - 110001',
-  supportEmail: 'support@isbuildtech.com',
+  supportEmail: 'support@uniqueinvestors.com',
   contactNumber: '+91-11-23456789',
 };
 

@@ -102,7 +102,7 @@ const normalizeOptionalValue = (value?: string | null) => {
 const generateUniqueUserId = async (): Promise<string> => {
   for (let attempt = 0; attempt < 10; attempt += 1) {
     const suffix = `${Date.now().toString().slice(-5)}${Math.floor(Math.random() * 10)}`;
-    const candidate = `isbuildtech${suffix}`;
+    const candidate = `uniqueinvestors${suffix}`;
     const existing = await prisma.user.findUnique({ where: { userId: candidate }, select: { id: true } });
     if (!existing) {
       return candidate;

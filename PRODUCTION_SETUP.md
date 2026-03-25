@@ -1,4 +1,4 @@
-# I&S BuildTech Production Setup
+# Unique Investors Production Setup
 
 ## 1. PostgreSQL install and database creation
 
@@ -7,21 +7,21 @@ Install PostgreSQL 15 or later on the target machine, then create a database and
 Example SQL:
 
 ```sql
-CREATE DATABASE isbuildtech_prod;
-CREATE USER isbuildtech_app WITH ENCRYPTED PASSWORD 'replace-with-strong-password';
-GRANT ALL PRIVILEGES ON DATABASE isbuildtech_prod TO isbuildtech_app;
+CREATE DATABASE uniqueinvestors_prod;
+CREATE USER uniqueinvestors_app WITH ENCRYPTED PASSWORD 'replace-with-strong-password';
+GRANT ALL PRIVILEGES ON DATABASE uniqueinvestors_prod TO uniqueinvestors_app;
 ```
 
-Use this connection string format in [backend/.env](/D:/isBuildTech2/backend/.env):
+Use this connection string format in [backend/.env](/D:/uniqueInvestors2/backend/.env):
 
 ```env
-DATABASE_URL="postgresql://isbuildtech_app:replace-with-strong-password@localhost:5432/isbuildtech_prod?schema=public"
+DATABASE_URL="postgresql://uniqueinvestors_app:replace-with-strong-password@localhost:5432/uniqueinvestors_prod?schema=public"
 JWT_SECRET="replace-with-a-very-strong-secret"
 PORT=5000
 CLIENT_URL="https://your-frontend-domain.com"
 ```
 
-Use this in [frontend/.env](/D:/isBuildTech2/frontend/.env) or [frontend/.env.example](/D:/isBuildTech2/frontend/.env.example):
+Use this in [frontend/.env](/D:/uniqueInvestors2/frontend/.env) or [frontend/.env.example](/D:/uniqueInvestors2/frontend/.env.example):
 
 ```env
 VITE_API_BASE_URL="https://your-api-domain.com/api"
@@ -32,13 +32,13 @@ VITE_API_BASE_URL="https://your-api-domain.com/api"
 After PostgreSQL is reachable:
 
 ```powershell
-cd D:\isBuildTech2\backend
+cd D:\uniqueInvestors2\backend
 npm run prisma:generate
 npm run prisma:push
 npm run prisma:seed
 ```
 
-This project now uses PostgreSQL in [backend/prisma/schema.prisma](/D:/isBuildTech2/backend/prisma/schema.prisma) and seeds:
+This project now uses PostgreSQL in [backend/prisma/schema.prisma](/D:/uniqueInvestors2/backend/prisma/schema.prisma) and seeds:
 
 - admin and agent users
 - company settings
@@ -55,14 +55,14 @@ Default seeded credentials:
 Backend:
 
 ```powershell
-cd D:\isBuildTech2\backend
+cd D:\uniqueInvestors2\backend
 npm run dev
 ```
 
 Frontend:
 
 ```powershell
-cd D:\isBuildTech2\frontend
+cd D:\uniqueInvestors2\frontend
 npm run dev
 ```
 
@@ -71,14 +71,14 @@ npm run dev
 Backend:
 
 ```powershell
-cd D:\isBuildTech2\backend
+cd D:\uniqueInvestors2\backend
 npm run build
 ```
 
 Frontend:
 
 ```powershell
-cd D:\isBuildTech2\frontend
+cd D:\uniqueInvestors2\frontend
 npm run build
 ```
 

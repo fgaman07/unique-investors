@@ -9,10 +9,10 @@ async function seedSettings() {
     update: {},
     create: {
       id: 'company-settings-default',
-      companyName: 'I&S Buildtech Pvt. Ltd.',
+      companyName: 'Unique Investors Pvt. Ltd.',
       registrationNo: 'U70100DL2026PTC000000',
       address: '102, Dream Plaza, Highway Road, Delhi - 110001',
-      supportEmail: 'support@isbuildtech.com',
+      supportEmail: 'support@uniqueinvestors.com',
       contactNumber: '+91-11-23456789',
     },
   });
@@ -50,7 +50,7 @@ async function main() {
     create: {
       userId: 'admin',
       name: 'Shri Kishan Kashyap',
-      email: 'admin@isbuildtech.com',
+      email: 'admin@uniqueinvestors.com',
       password: hashedPassword,
       mobile: '9999999999',
       panNo: 'ABCPK1234Z',
@@ -76,10 +76,10 @@ async function main() {
   });
 
   const agent2 = await prisma.user.upsert({
-    where: { userId: 'isbuildtech20001' },
+    where: { userId: 'uniqueinvestors20001' },
     update: {},
     create: {
-      userId: 'isbuildtech20001',
+      userId: 'uniqueinvestors20001',
       name: 'Priya Sharma',
       email: 'priya@email.com',
       password: hashedPassword,
@@ -92,10 +92,10 @@ async function main() {
   });
 
   const agent3 = await prisma.user.upsert({
-    where: { userId: 'isbuildtech20002' },
+    where: { userId: 'uniqueinvestors20002' },
     update: {},
     create: {
-      userId: 'isbuildtech20002',
+      userId: 'uniqueinvestors20002',
       name: 'Amit Verma',
       email: 'amit@email.com',
       password: hashedPassword,
@@ -108,10 +108,10 @@ async function main() {
   });
 
   const agent4 = await prisma.user.upsert({
-    where: { userId: 'isbuildtech20003' },
+    where: { userId: 'uniqueinvestors20003' },
     update: {},
     create: {
-      userId: 'isbuildtech20003',
+      userId: 'uniqueinvestors20003',
       name: 'Sunita Devi',
       email: 'sunita@email.com',
       password: hashedPassword,
@@ -124,10 +124,10 @@ async function main() {
   });
 
   const agent5 = await prisma.user.upsert({
-    where: { userId: 'isbuildtech20004' },
+    where: { userId: 'uniqueinvestors20004' },
     update: {},
     create: {
-      userId: 'isbuildtech20004',
+      userId: 'uniqueinvestors20004',
       name: 'Vikram Singh',
       email: 'vikram@email.com',
       password: hashedPassword,
@@ -144,7 +144,7 @@ async function main() {
     update: {},
     create: {
       projectNo: 'PRJ-001',
-      name: 'I&S Dream Homes Highway',
+      name: 'Unique Investors Dream Homes Highway',
       blocks: {
         create: [{ name: 'A' }, { name: 'B' }, { name: 'C' }, { name: 'D' }],
       },
