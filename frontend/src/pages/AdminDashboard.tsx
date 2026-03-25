@@ -28,7 +28,7 @@ const AdminDashboard = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Global Admin Control Center</h1>
-          <p className="text-sm text-gray-500">I&S BuildTech Unified System Status</p>
+          <p className="text-sm text-gray-500">Unique Investors Unified System Status</p>
         </div>
       </div>
 

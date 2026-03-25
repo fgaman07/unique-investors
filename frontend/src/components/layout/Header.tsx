@@ -14,7 +14,7 @@ const Header = () => {
   return (
     <div className="h-14 bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-4 z-10 w-full">
       <div className="flex items-center text-brand-primary font-black ml-2 uppercase tracking-wide">
-        I & S BuildTech Platform
+        Unique Investors Platform
       </div>
 
       <div className="flex items-center space-x-6">

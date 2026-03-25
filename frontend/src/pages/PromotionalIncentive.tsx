@@ -91,7 +91,7 @@ const PromotionalIncentive = () => {
         </div>
 
         <div className="text-center py-3 text-[11px] text-gray-400 italic font-bold border-t">
-          (c) isbuildtech PVT. LTD All Rights Reserved 2021
+          (c) uniqueinvestors PVT. LTD All Rights Reserved 2021
         </div>
       </div>
     </div>
