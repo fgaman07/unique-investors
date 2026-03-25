@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import LegacyTable from '../components/common/LegacyTable';
-import { api } from '../context/AuthContext';
+import { api, useAuth } from '../context/AuthContext';
+import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 interface EmiRecord {
   id: string;
@@ -15,6 +16,10 @@ interface EmiRecord {
     property: {
       propertyNo: string;
       type: string;
+      block: {
+        name: string;
+        project: { name: string; projectNo: string };
+      };
     };
     agent: {
       name: string;
@@ -35,24 +40,26 @@ interface SaleOption {
 }
 
 const EMIReport = () => {
+  const { targetUserId } = useAuth();
   const [emis, setEmis] = useState<EmiRecord[]>([]);
   const [sales, setSales] = useState<SaleOption[]>([]);
   const [form, setForm] = useState({ saleId: '', amount: '' });
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
+      const query = targetUserId ? `?agentId=${targetUserId}` : '';
       const [emiResponse, salesResponse] = await Promise.all([
-        api.get<EmiRecord[]>('/sales/emis'),
-        api.get<SaleOption[]>('/sales'),
+        api.get<EmiRecord[]>(`/sales/emis${query}`),
+        api.get<SaleOption[]>(`/sales${query}`),
       ]);
       setEmis(emiResponse.data);
       setSales(salesResponse.data);
     } catch (error) {
       console.error('Error fetching EMI report', error);
-      setMessage('Failed to load EMI data.');
+      setMessage({ type: 'error', text: 'Failed to load EMI data.' });
     } finally {
       setLoading(false);
     }
@@ -60,7 +67,7 @@ const EMIReport = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [targetUserId]);
 
   const payableSales = useMemo(
     () => sales.filter((sale) => sale.totalAmount > sale.paidAmount),
@@ -75,20 +82,20 @@ const EMIReport = () => {
         amount: Number(form.amount),
       });
       setForm({ saleId: '', amount: '' });
-      setMessage('EMI payment recorded successfully.');
+      setMessage({ type: 'success', text: 'EMI payment recorded successfully.' });
       await loadData();
     } catch (error: any) {
-      setMessage(error.response?.data?.message || 'Unable to record EMI payment.');
+      setMessage({ type: 'error', text: error.response?.data?.message || 'Unable to record EMI payment.' });
     }
   };
 
   const columns = [
     { header: 'Payment Date', field: 'paymentDateDisplay' },
-    { header: 'EMI ID', field: 'id' },
-    { header: 'Sale Receipt No', field: 'receiptNo' },
-    { header: 'Agent Name', field: 'agentName' },
+    { header: 'Receipt No', field: 'receiptNo' },
+    { header: 'Project', field: 'projectDisplay' },
     { header: 'Property Ref', field: 'propertyRef' },
-    { header: 'Paid Amount (INR)', field: 'amountDisplay' },
+    { header: 'Agent Name', field: 'agentName' },
+    { header: 'Paid Amount (₹)', field: 'amountDisplay' },
     { header: 'Status', field: 'status' },
   ];
 
@@ -96,35 +103,78 @@ const EMIReport = () => {
     ...emi,
     paymentDateDisplay: emi.paymentDate ? new Date(emi.paymentDate).toLocaleDateString('en-GB') : '-',
     receiptNo: emi.sale.receiptNo,
-    agentName: emi.sale.agent.name,
-    propertyRef: `${emi.sale.property.type} (${emi.sale.property.propertyNo})`,
-    amountDisplay: emi.amount.toLocaleString('en-IN'),
+    projectDisplay: emi.sale.property.block
+      ? `${emi.sale.property.block.project.name} (${emi.sale.property.block.project.projectNo}) / Blk-${emi.sale.property.block.name}`
+      : '-',
+    agentName: `${emi.sale.agent.name} (${emi.sale.agent.userId})`,
+    propertyRef: `${emi.sale.property.type} - ${emi.sale.property.propertyNo}`,
+    amountDisplay: `₹ ${emi.amount.toLocaleString('en-IN')}`,
   }));
 
   return (
-    <div className="space-y-4 p-4">
-      {message ? (
-        <div className="border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-          {message}
+    <div className="p-4 bg-gray-50 min-h-screen space-y-4">
+      <AdminUserSelector />
+      
+      {/* Header Tab */}
+      <div className="inline-block px-4 py-1.5 bg-white border border-gray-200 border-b-0 rounded-t-sm shadow-sm ml-2">
+        <span className="text-[12px] font-bold text-gray-700 uppercase tracking-tight">EMI Report</span>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div className={`border px-3 py-2 text-sm rounded ${
+          message.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-700'
+            : 'bg-red-50 border-red-200 text-red-600'
+        }`}>
+          {message.text}
         </div>
-      ) : null}
+      )}
 
-      <form onSubmit={handlePayEmi} className="grid gap-3 border border-slate-200 bg-white p-4 md:grid-cols-3">
-        <select value={form.saleId} onChange={(event) => setForm((current) => ({ ...current, saleId: event.target.value }))} className="border px-3 py-2 text-sm" required>
-          <option value="">Select sale</option>
-          {payableSales.map((sale) => (
-            <option key={sale.id} value={sale.id}>
-              {sale.receiptNo} / {sale.property.propertyNo} / Outstanding {(sale.totalAmount - sale.paidAmount).toLocaleString('en-IN')}
-            </option>
-          ))}
-        </select>
-        <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} className="border px-3 py-2 text-sm" placeholder="EMI amount" required />
-        <button type="submit" className="bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
-          Record EMI
-        </button>
-      </form>
+      {/* Pay EMI Form */}
+      <div className="bg-white border border-gray-200 shadow-sm p-4">
+        <div className="text-[12px] font-bold text-gray-700 uppercase mb-3 pb-2 border-b border-gray-100">
+          Record EMI Payment
+        </div>
+        <form onSubmit={handlePayEmi} className="grid gap-3 md:grid-cols-3">
+          <select
+            value={form.saleId}
+            onChange={(event) => setForm((current) => ({ ...current, saleId: event.target.value }))}
+            className="border border-gray-300 px-3 py-2 text-[12px] rounded focus:outline-none focus:border-blue-400"
+            required
+          >
+            <option value="">Select sale / property</option>
+            {payableSales.map((sale) => (
+              <option key={sale.id} value={sale.id}>
+                {sale.receiptNo} | {sale.property.propertyNo} | Outstanding: ₹{(sale.totalAmount - sale.paidAmount).toLocaleString('en-IN')}
+              </option>
+            ))}
+          </select>
+          <input
+            value={form.amount}
+            onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))}
+            className="border border-gray-300 px-3 py-2 text-[12px] rounded focus:outline-none focus:border-blue-400"
+            placeholder="EMI amount (₹)"
+            type="number"
+            min="1"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-[#247BA0] hover:bg-[#1D6381] text-white px-4 py-2 text-[12px] font-semibold rounded transition-colors shadow-sm"
+          >
+            Record EMI
+          </button>
+        </form>
+      </div>
 
-      <LegacyTable title="Client EMI Installments Master Ledger" dateRange={true} columns={columns} data={loading ? [] : tableData} />
+      {/* Table */}
+      <LegacyTable
+        title="Client EMI Installments Master Ledger"
+        dateRange={true}
+        columns={columns}
+        data={loading ? [] : tableData}
+      />
     </div>
   );
 };

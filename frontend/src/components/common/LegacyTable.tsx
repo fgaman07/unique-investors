@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { Download, RefreshCw } from 'lucide-react';
 
 interface Column {
   header: string;
@@ -10,14 +11,23 @@ interface LegacyTableProps {
   dateRange?: boolean;
   columns: Column[];
   data: any[];
+  rowHighlight?: (row: any) => string;
 }
 
-const LegacyTable: FC<LegacyTableProps> = ({ title, dateRange, columns, data }) => {
+const LegacyTable: FC<LegacyTableProps> = ({ title, dateRange, columns, data, rowHighlight }) => {
   return (
     <div className="w-full bg-white flex flex-col space-y-1">
       {/* Top Title Bar */}
-      <div className="bg-[#f5f6f8] border border-gray-300 px-3 py-1 text-[13px] font-semibold text-gray-700">
-        {title}
+      <div className="bg-[#f5f6f8] border border-gray-300 px-3 py-1 text-[13px] font-semibold text-gray-700 flex justify-between items-center">
+        <span>{title}</span>
+        <div className="flex items-center space-x-3 text-gray-500">
+          <button title="Export to Excel" className="hover:text-green-600 transition-colors">
+            <Download size={14} />
+          </button>
+          <button title="Refresh" onClick={() => window.location.reload()} className="hover:text-blue-600 transition-colors">
+            <RefreshCw size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Optional Date Range Search Bar exactly matching Image 1 & 4 */}
@@ -69,7 +79,7 @@ const LegacyTable: FC<LegacyTableProps> = ({ title, dateRange, columns, data }) 
           <tbody>
             {data.length > 0 ? (
               data.map((row, rowIndex) => (
-                <tr key={rowIndex}>
+                <tr key={rowIndex} className={rowHighlight ? rowHighlight(row) : ''}>
                   {columns.map((col, colIndex) => (
                     <td key={colIndex}>{row[col.field] !== undefined ? row[col.field] : '-'}</td>
                   ))}

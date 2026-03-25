@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import LegacyTable from '../components/common/LegacyTable';
-import { api } from '../context/AuthContext';
+import { api, useAuth } from '../context/AuthContext';
+import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const COLUMNS = [
   { header: 'Level', field: 'level' },
@@ -12,13 +13,16 @@ const COLUMNS = [
 ];
 
 const DownLineReport = () => {
+  const { targetUserId } = useAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await api.get('/mlm/downline');
+        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+        const response = await api.get(`/mlm/downline${query}`);
         // Format the table data
         const formatted = response.data.downline.map((item: any) => ({
           ...item,
@@ -34,10 +38,11 @@ const DownLineReport = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [targetUserId]);
 
   return (
     <div className="w-full h-full pb-10">
+      <AdminUserSelector />
       <LegacyTable 
         title="Comprehensive Downline Report (All Levels)" 
         dateRange={false} 

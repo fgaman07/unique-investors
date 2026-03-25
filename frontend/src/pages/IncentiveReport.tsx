@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import LegacyTable from '../components/common/LegacyTable';
-import { api } from '../context/AuthContext';
+import { api, useAuth } from '../context/AuthContext';
+import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const COLUMNS = [
   { header: 'Date', field: 'date' },
@@ -12,6 +13,7 @@ const COLUMNS = [
 ];
 
 const IncentiveReport = () => {
+  const { targetUserId } = useAuth();
   const [data, setData] = useState([]);
   const [totals, setTotals] = useState({ pending: 0, released: 0, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,8 @@ const IncentiveReport = () => {
     const fetchData = async () => {
       try {
         // Exclude promotional incentives for this standard commission report
-        const response = await api.get('/mlm/commissions');
+        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+        const response = await api.get(`/mlm/commissions${query}`);
         
         const standardCommissions = response.data.commissions.filter((c: any) => c.incomeType !== 'Promotional');
         const formatted = standardCommissions.map((item: any) => ({
@@ -43,10 +46,11 @@ const IncentiveReport = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [targetUserId]);
 
   return (
     <div className="w-full h-full pb-10 flex flex-col space-y-4">
+      <AdminUserSelector />
       <LegacyTable 
         title="Agent Incentive & Commission Ledger" 
         dateRange={true} 

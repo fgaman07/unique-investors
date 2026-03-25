@@ -129,10 +129,13 @@ export const getSales = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const { agentId } = req.query;
     const where: Prisma.EMIWhereInput = {};
 
     if (req.user!.role !== 'ADMIN') {
       where.sale = { agentId: req.user!.id };
+    } else if (agentId) {
+      where.sale = { agentId: agentId as string };
     }
 
     const emis = await prisma.eMI.findMany({
@@ -141,7 +144,18 @@ export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> =>
       include: {
         sale: {
           include: {
-            property: { select: { propertyNo: true, type: true } },
+            property: {
+              select: {
+                propertyNo: true,
+                type: true,
+                block: {
+                  select: {
+                    name: true,
+                    project: { select: { name: true, projectNo: true } },
+                  },
+                },
+              },
+            },
             agent: { select: { name: true, userId: true } },
           },
         },

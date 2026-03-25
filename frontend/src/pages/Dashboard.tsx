@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../context/AuthContext';
-import { Users, DollarSign, Activity, FileText } from 'lucide-react';
+import { Users, User, DollarSign, Activity, FileText } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
@@ -82,14 +82,56 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <div className="bg-white border rounded shadow-sm p-5 flex flex-col items-center">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4 border-2 border-brand-primary/20">
+            <User size={48} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-800">{stats.user.name}</h3>
+          <p className="text-sm text-brand-primary font-semibold mb-4">{stats.user.rank}</p>
+          
+          <div className="w-full space-y-2 text-sm border-t pt-4">
+            <div className="flex justify-between">
+              <span className="text-gray-500">User ID</span>
+              <span className="font-medium">{stats.user.userId}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Mobile</span>
+              <span className="font-medium">{stats.user.mobile}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Joining Date</span>
+              <span className="font-medium">{new Date(stats.user.joiningDate).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 bg-white border rounded shadow-sm p-6">
+          <h3 className="text-xl font-bold text-[#2E5B9A] mb-4 border-b pb-2">Welcome to I&S Buildtech</h3>
+          <div className="text-sm text-gray-600 leading-relaxed space-y-4 text-justify">
+            <p>
+              We are I & S Buildtech Pvt. Ltd., a leading Real Estate Consultants group. We specialize in 
+              services related to the purchase of properties, investment, advisory services, property 
+              valuation, and assisting clients.
+            </p>
+            <p>
+              I & S Buildtech Pvt. Ltd. began with a long-term thinking by a group of entrepreneurs, 
+              who dreamt big and stuck to their vision relentlessly. The result was the creation of 
+              I & S Buildtech Pvt. Ltd., having its base in Delhi and very soon expanding all over 
+              the country.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <div className="bg-white border rounded shadow-sm p-4">
           <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Quick Links</h3>
           <div className="grid grid-cols-2 gap-3">
-            <a href="/sale-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded">View Sales Report</a>
-            <a href="/down-line-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded">View Full Team</a>
-            <a href="/incentive-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded">Check Commissions</a>
-            <a href="/user-tree" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded">MLM Visual Tree</a>
+            <a href="/sale-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded text-center">View Sales Report</a>
+            <a href="/down-line-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded text-center">View Full Team</a>
+            <a href="/incentive-report" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded text-center">Check Commissions</a>
+            <a href="/user-tree" className="text-sm text-blue-600 hover:underline p-2 bg-blue-50 rounded text-center">MLM Visual Tree</a>
           </div>
         </div>
 
@@ -97,7 +139,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Recent Notices</h3>
           <ul className="space-y-3 text-sm text-gray-600">
             <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Q1 2026 Promotional Bonus eligibility ends on March 31st.</li>
-            <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Welcome to the new I&S BuildTech unified portal.</li>
+            <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Welcome to the new I&S Buildtech unified portal.</li>
             <li className="flex items-start"><span className="text-brand-primary mr-2">♦</span> Phase 2 properties in Block D are now open for booking.</li>
           </ul>
         </div>

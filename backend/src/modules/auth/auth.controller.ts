@@ -12,7 +12,17 @@ const baseUserSchema = z.object({
   password: z.string().min(6),
   mobile: z.string().trim().min(10),
   panNo: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
+  address: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
+  bankName: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
+  accountNo: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
+  ifscCode: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
+  tdsPercentage: z.coerce.number().min(0).max(100).optional(),
   sponsorId: z.string().trim().optional().nullable(),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(6),
 });
 
 const createUserSchema = baseUserSchema.extend({
@@ -33,6 +43,11 @@ const updateUserSchema = z.object({
   panNo: z.string().trim().optional().nullable().or(z.literal('')),
   role: z.nativeEnum(UserRole).optional(),
   rank: z.string().trim().min(2).optional(),
+  address: z.string().trim().optional().nullable().or(z.literal('')),
+  bankName: z.string().trim().optional().nullable().or(z.literal('')),
+  accountNo: z.string().trim().optional().nullable().or(z.literal('')),
+  ifscCode: z.string().trim().optional().nullable().or(z.literal('')),
+  tdsPercentage: z.coerce.number().min(0).max(100).optional(),
   sponsorId: z.string().trim().optional().nullable().or(z.literal('')),
   status: z.nativeEnum(UserStatus).optional(),
 });
@@ -48,6 +63,11 @@ const userSelect = {
   email: true,
   mobile: true,
   panNo: true,
+  address: true,
+  bankName: true,
+  accountNo: true,
+  ifscCode: true,
+  tdsPercentage: true,
   role: true,
   status: true,
   rank: true,
@@ -120,6 +140,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         email: payload.email,
         mobile: payload.mobile,
         panNo: payload.panNo,
+        address: payload.address,
         password: await hashPassword(payload.password),
         sponsorId: payload.sponsorId || null,
       },
@@ -165,6 +186,11 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
         sponsorId: payload.sponsorId || null,
         role: payload.role || UserRole.AGENT,
         rank: payload.rank || 'Associate',
+        address: payload.address,
+        bankName: payload.bankName,
+        accountNo: payload.accountNo,
+        ifscCode: payload.ifscCode,
+        tdsPercentage: payload.tdsPercentage,
         status: payload.status || UserStatus.ACTIVE,
       },
       select: userSelect,
@@ -217,8 +243,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const targetUserId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: targetUserId },
       select: userSelect,
     });
 
@@ -281,9 +308,14 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
         ...(payload.role && { role: payload.role }),
         ...(payload.rank && { rank: payload.rank }),
         ...(payload.status && { status: payload.status }),
+        ...(payload.address !== undefined && { address: normalizeOptionalValue(payload.address) }),
         ...(payload.email !== undefined && { email: normalizeOptionalValue(payload.email) }),
         ...(payload.panNo !== undefined && { panNo: normalizeOptionalValue(payload.panNo) }),
         ...(payload.sponsorId !== undefined && { sponsorId: normalizeOptionalValue(payload.sponsorId) }),
+        ...(payload.bankName !== undefined && { bankName: normalizeOptionalValue(payload.bankName) }),
+        ...(payload.accountNo !== undefined && { accountNo: normalizeOptionalValue(payload.accountNo) }),
+        ...(payload.ifscCode !== undefined && { ifscCode: normalizeOptionalValue(payload.ifscCode) }),
+        ...(payload.tdsPercentage !== undefined && { tdsPercentage: payload.tdsPercentage }),
       },
       select: userSelect,
     });
@@ -319,6 +351,97 @@ export const updateUserStatus = async (req: AuthRequest, res: Response): Promise
     }
 
     console.error('[Auth/UpdateUserStatus] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+export const adminResetPassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    const { newPassword } = z.object({ newPassword: z.string().min(6) }).parse(req.body);
+    
+    await prisma.user.update({
+      where: { id },
+      data: { password: await hashPassword(newPassword) },
+    });
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ message: error.issues[0]?.message || 'Invalid payload' });
+      return;
+    }
+    console.error('[Auth/AdminResetPassword] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Change authenticated user's password
+// @route   PUT /api/auth/change-password
+// @access  Private
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const isMatch = await comparePassword(currentPassword, user.password);
+    if (!isMatch) {
+      res.status(400).json({ message: 'Current password is incorrect' });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: await hashPassword(newPassword) },
+    });
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ message: error.issues[0]?.message || 'Invalid password payload' });
+      return;
+    }
+    console.error('[Auth/ChangePassword] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Update own profile (for regular users)
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const allowedUpdates = z.object({
+      address: z.string().trim().optional().nullable().or(z.literal('')),
+      bankName: z.string().trim().optional().nullable().or(z.literal('')),
+      accountNo: z.string().trim().optional().nullable().or(z.literal('')),
+      ifscCode: z.string().trim().optional().nullable().or(z.literal('')),
+    });
+    const payload = allowedUpdates.parse(req.body);
+
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: {
+        ...(payload.address !== undefined && { address: normalizeOptionalValue(payload.address) }),
+        ...(payload.bankName !== undefined && { bankName: normalizeOptionalValue(payload.bankName) }),
+        ...(payload.accountNo !== undefined && { accountNo: normalizeOptionalValue(payload.accountNo) }),
+        ...(payload.ifscCode !== undefined && { ifscCode: normalizeOptionalValue(payload.ifscCode) }),
+      },
+      select: userSelect,
+    });
+
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ message: error.issues[0]?.message || 'Invalid profile payload' });
+      return;
+    }
+    console.error('[Auth/UpdateProfile] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

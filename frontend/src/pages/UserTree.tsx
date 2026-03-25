@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { api } from '../context/AuthContext';
+import { api, useAuth } from '../context/AuthContext';
 import { Users, User } from 'lucide-react';
+import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const UserTree = () => {
+  const { targetUserId } = useAuth();
   const [treeData, setTreeData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTree = async () => {
       try {
-        const { data } = await api.get('/mlm/tree');
+        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+        const { data } = await api.get(`/mlm/tree${query}`);
         setTreeData(data);
       } catch (error) {
         console.error('Error fetching MLM tree', error);
@@ -18,7 +21,7 @@ const UserTree = () => {
       }
     };
     fetchTree();
-  }, []);
+  }, [targetUserId]);
 
   const renderNode = (node: any, level: number = 0) => {
     if (!node) return null;
@@ -77,6 +80,7 @@ const UserTree = () => {
 
   return (
     <div className="p-4 h-[85vh] flex flex-col">
+      <AdminUserSelector />
       <div className="bg-[#f5f6f8] border border-gray-300 px-4 py-2 text-[14px] font-bold text-gray-700 mb-4 drop-shadow-sm flex justify-between items-center">
         <span>Genealogy Tree Structure</span>
         <button onClick={() => window.location.reload()} className="text-xs bg-brand-primary text-white px-3 py-1 rounded shadow hover:bg-brand-sidebarHover focus:outline-none">

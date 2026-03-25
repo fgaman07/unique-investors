@@ -50,6 +50,11 @@ model User {
   name           String
   mobile         String    @unique
   panNo          String?
+  address        String?
+  bankName       String?
+  accountNo      String?
+  ifscCode       String?
+  tdsPercentage  Float     @default(5.0)
   role           UserRole  @default(AGENT)
   status         UserStatus @default(ACTIVE)
   rank           String    @default("Associate") // Associate, Manager, etc.
@@ -64,6 +69,7 @@ model User {
 
   sales          Sale[]    @relation("AgentSales")
   commissions    CommissionLedger[]
+  awards         Award[]   @relation("UserAwards")
 }
 
 // Phase 2: Inventory & Real Estate
@@ -168,4 +174,16 @@ model CommissionSetting {
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+// Phase 4: Awards & Achievements
+model Award {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserAwards", fields: [userId], references: [id], onDelete: Cascade)
+  title       String   // e.g. "Gold Achiever", "Diamond Club"
+  description String?
+  awardedOn   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

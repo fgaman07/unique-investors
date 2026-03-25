@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
+import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 interface SaleRecord {
   id: string;
@@ -55,7 +56,7 @@ const emptySaleForm = {
 };
 
 const SaleReport = () => {
-  const { user } = useAuth();
+  const { user, targetUserId } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
   const [sales, setSales] = useState<SaleRecord[]>([]);
   const [agents, setAgents] = useState<AgentOption[]>([]);
@@ -67,7 +68,8 @@ const SaleReport = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const salesResponse = await api.get<SaleRecord[]>('/sales');
+      const query = targetUserId ? `?agentId=${targetUserId}` : '';
+      const salesResponse = await api.get<SaleRecord[]>(`/sales${query}`);
       setSales(salesResponse.data);
 
       if (isAdmin) {
@@ -88,7 +90,7 @@ const SaleReport = () => {
 
   useEffect(() => {
     loadData();
-  }, [isAdmin]);
+  }, [isAdmin, targetUserId]);
 
   const handleCreateSale = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -139,6 +141,7 @@ const SaleReport = () => {
 
   return (
     <div className="space-y-4 p-4">
+      <AdminUserSelector />
       {message ? (
         <div className="border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
           {message}

@@ -6,8 +6,21 @@ export interface AuthUser {
   id: string;
   userId: string;
   name: string;
+  email?: string;
+  mobile: string;
   role: 'ADMIN' | 'MANAGER' | 'AGENT';
   status?: 'ACTIVE' | 'BLOCKED';
+  rank: string;
+  address?: string;
+  bankName?: string;
+  accountNo?: string;
+  ifscCode?: string;
+  tdsPercentage?: number;
+  joiningDate: string;
+  sponsor?: {
+    userId: string;
+    name: string;
+  };
 }
 
 interface LoginResponse extends AuthUser {
@@ -19,6 +32,8 @@ interface AuthContextType {
   token: string | null;
   login: (userId: string, password: string) => Promise<LoginResponse | null>;
   logout: () => void;
+  targetUserId: string | null;
+  setTargetUserId: (id: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,6 +56,7 @@ api.interceptors.request.use((config) => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(storedUser ? JSON.parse(storedUser) : null);
   const [token, setToken] = useState<string | null>(storedToken);
+  const [targetUserId, setTargetUserId] = useState<string | null>(null);
 
   const login = async (userId: string, password: string): Promise<LoginResponse | null> => {
     try {
@@ -64,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, targetUserId, setTargetUserId }}>
       {children}
     </AuthContext.Provider>
   );

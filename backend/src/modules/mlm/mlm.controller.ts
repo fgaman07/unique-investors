@@ -8,7 +8,7 @@ import { prisma } from '../../lib/prisma.js';
 // @access  Private
 export const getCommissions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
     const { from, to, type, status } = req.query;
 
     const where: Prisma.CommissionLedgerWhereInput = { userId };
@@ -41,7 +41,7 @@ export const getCommissions = async (req: AuthRequest, res: Response): Promise<v
 // @access  Private
 export const getDownline = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
     const allUsers = await prisma.user.findMany({
       select: { id: true, userId: true, name: true, mobile: true, rank: true, role: true, sponsorId: true, joiningDate: true, createdAt: true }
     });
@@ -77,7 +77,7 @@ export const getDownline = async (req: AuthRequest, res: Response): Promise<void
 // @access  Private
 export const getDirectMembers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
     const members = await prisma.user.findMany({
       where: { sponsorId: userId },
       select: { id: true, userId: true, name: true, mobile: true, rank: true, role: true, joiningDate: true, createdAt: true }
@@ -94,7 +94,8 @@ export const getDirectMembers = async (req: AuthRequest, res: Response): Promise
 // @access  Private
 export const getTree = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const rootId = (req.query.rootId as string) || req.user!.id;
+    const targetUserId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
+    const rootId = (req.query.rootId as string) || targetUserId;
     const allUsers = await prisma.user.findMany({
       select: { id: true, userId: true, name: true, rank: true, role: true, sponsorId: true, joiningDate: true }
     });
@@ -187,3 +188,180 @@ function getLevel(allUsers: any[], childId: string, rootId: string): number {
   }
   return level;
 }
+
+// @desc    Get financial summary for current user (earnings, TDS, balance)
+// @route   GET /api/mlm/summary
+// @access  Private
+export const getUserSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { tdsPercentage: true, rank: true, name: true, userId: true },
+    });
+
+    const commissions = await prisma.commissionLedger.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } });
+
+    const promotional = commissions.filter(c => c.incomeType === 'Promotional');
+    const level = commissions.filter(c => c.incomeType !== 'Promotional');
+
+    const promotionalTotal = promotional.reduce((s, c) => s + c.amount, 0);
+    const levelTotal = level.reduce((s, c) => s + c.amount, 0);
+    const totalEarning = promotionalTotal + levelTotal;
+    const tdsRate = user?.tdsPercentage ?? 5;
+    const tds = totalEarning * (tdsRate / 100);
+    const releasedAmount = commissions.filter(c => c.status === 'RELEASED').reduce((s, c) => s + c.amount, 0);
+    const balance = totalEarning - tds - releasedAmount;
+
+    res.json({
+      promotionalIncentive: promotionalTotal,
+      levelIncentive: levelTotal,
+      totalEarning,
+      tds,
+      tdsRate,
+      releasedAmount,
+      balance,
+      totalCommissions: commissions.length,
+    });
+  } catch (error) {
+    console.error('[MLM/Summary] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Enhanced direct members with Bigger Leg calculation
+// @route   GET /api/mlm/direct-members-with-volume
+// @access  Private
+export const getDirectMembersWithVolume = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
+
+    // Get all users (for recursive BFS)
+    const allUsers = await prisma.user.findMany({
+      select: { id: true, userId: true, name: true, mobile: true, rank: true, sponsorId: true, joiningDate: true },
+    });
+
+    // Get direct referrals
+    const directMembers = allUsers.filter(u => u.sponsorId === userId);
+
+    // For each direct member, calculate the total business volume in their leg
+    const membersWithVolume = await Promise.all(
+      directMembers.map(async (member) => {
+        // Find all users in this leg (BFS from member)
+        const legUsers: string[] = [];
+        const queue = [member.id];
+        const visited = new Set<string>();
+        visited.add(member.id);
+
+        while (queue.length > 0) {
+          const cur = queue.shift()!;
+          legUsers.push(cur);
+          const children = allUsers.filter(u => u.sponsorId === cur && !visited.has(u.id));
+          for (const child of children) {
+            visited.add(child.id);
+            queue.push(child.id);
+          }
+        }
+
+        // Sum up sale amounts for this leg
+        const sales = await prisma.sale.findMany({
+          where: { agentId: { in: legUsers } },
+          select: { paidAmount: true },
+        });
+        const volume = sales.reduce((s, sale) => s + sale.paidAmount, 0);
+
+        return {
+          ...member,
+          joiningDate: member.joiningDate,
+          legSize: legUsers.length,
+          businessVolume: volume,
+        };
+      })
+    );
+
+    // Flag the bigger leg
+    const maxVolume = Math.max(...membersWithVolume.map(m => m.businessVolume), 0);
+    const result = membersWithVolume.map(m => ({
+      ...m,
+      isBiggerLeg: m.businessVolume === maxVolume && maxVolume > 0,
+    }));
+
+    res.json({ members: result, count: result.length });
+  } catch (error) {
+    console.error('[MLM/DirectMembersVolume] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Aggregate business volume (sale amount) grouped by each direct referral leg
+// @route   GET /api/mlm/all-leg
+// @access  Private
+export const getAllLegReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
+    const { from, to } = req.query;
+
+    const allUsers = await prisma.user.findMany({
+      select: { id: true, userId: true, name: true, mobile: true, rank: true, sponsorId: true, joiningDate: true },
+    });
+
+    const directMembers = allUsers.filter(u => u.sponsorId === userId);
+
+    const legsWithVolume = await Promise.all(
+      directMembers.map(async (member) => {
+        // BFS to collect all users in this leg
+        const legUserIds: string[] = [];
+        const queue = [member.id];
+        const visited = new Set<string>();
+        visited.add(member.id);
+
+        while (queue.length > 0) {
+          const cur = queue.shift()!;
+          legUserIds.push(cur);
+          const children = allUsers.filter(u => u.sponsorId === cur && !visited.has(u.id));
+          for (const child of children) {
+            visited.add(child.id);
+            queue.push(child.id);
+          }
+        }
+
+        // Build date filter for sales
+        const saleDateFilter: any = {};
+        if (from) saleDateFilter.gte = new Date(from as string);
+        if (to) saleDateFilter.lte = new Date(to as string);
+
+        const salesWhere: any = { agentId: { in: legUserIds } };
+        if (from || to) salesWhere.saleDate = saleDateFilter;
+
+        const sales = await prisma.sale.findMany({
+          where: salesWhere,
+          select: { totalAmount: true, paidAmount: true },
+        });
+
+        const totalSaleAmount = sales.reduce((s, sale) => s + sale.totalAmount, 0);
+        const totalPaidAmount = sales.reduce((s, sale) => s + sale.paidAmount, 0);
+
+        return {
+          legHead: { id: member.id, userId: member.userId, name: member.name, mobile: member.mobile, rank: member.rank },
+          legSize: legUserIds.length,
+          saleCount: sales.length,
+          totalSaleAmount,
+          totalPaidAmount,
+        };
+      })
+    );
+
+    // Mark the bigger leg (highest total sale amount)
+    const maxVolume = Math.max(...legsWithVolume.map(l => l.totalSaleAmount), 0);
+    const result = legsWithVolume.map(l => ({
+      ...l,
+      isBiggerLeg: l.totalSaleAmount === maxVolume && maxVolume > 0,
+    }));
+
+    res.json({ legs: result, totalLegs: result.length });
+  } catch (error) {
+    console.error('[MLM/AllLegReport] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

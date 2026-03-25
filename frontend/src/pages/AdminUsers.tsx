@@ -20,6 +20,11 @@ interface UserRecord {
   _count?: {
     downline: number;
   };
+  address?: string | null;
+  bankName?: string | null;
+  accountNo?: string | null;
+  ifscCode?: string | null;
+  tdsPercentage?: number;
 }
 
 const emptyForm = {
@@ -31,6 +36,11 @@ const emptyForm = {
   role: 'AGENT',
   rank: 'Associate',
   sponsorId: '',
+  address: '',
+  bankName: '',
+  accountNo: '',
+  ifscCode: '',
+  tdsPercentage: 5,
 };
 
 const AdminUsers = () => {
@@ -87,6 +97,11 @@ const AdminUsers = () => {
           role: form.role,
           rank: form.rank,
           sponsorId: form.sponsorId || null,
+          address: form.address || null,
+          bankName: form.bankName || null,
+          accountNo: form.accountNo || null,
+          ifscCode: form.ifscCode || null,
+          tdsPercentage: Number(form.tdsPercentage) || 5,
         });
         setMessage('User updated successfully.');
       } else {
@@ -95,6 +110,11 @@ const AdminUsers = () => {
           email: form.email || undefined,
           panNo: form.panNo || undefined,
           sponsorId: form.sponsorId || null,
+          address: form.address || undefined,
+          bankName: form.bankName || undefined,
+          accountNo: form.accountNo || undefined,
+          ifscCode: form.ifscCode || undefined,
+          tdsPercentage: Number(form.tdsPercentage) || 5,
         });
         setMessage('User created successfully.');
       }
@@ -119,6 +139,11 @@ const AdminUsers = () => {
       role: user.role,
       rank: user.rank,
       sponsorId: sponsorOptions.find((option) => option.userId === user.sponsor?.userId)?.id || '',
+      address: user.address || '',
+      bankName: user.bankName || '',
+      accountNo: user.accountNo || '',
+      ifscCode: user.ifscCode || '',
+      tdsPercentage: user.tdsPercentage || 5,
     });
     setMessage('');
   };
@@ -215,6 +240,11 @@ const AdminUsers = () => {
               </option>
             ))}
           </select>
+          <input value={form.address} onChange={(event) => handleChange('address', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Address" />
+          <input value={form.bankName} onChange={(event) => handleChange('bankName', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Bank Name" />
+          <input value={form.accountNo} onChange={(event) => handleChange('accountNo', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Account Number" />
+          <input value={form.ifscCode} onChange={(event) => handleChange('ifscCode', event.target.value)} className="border px-3 py-2 text-sm" placeholder="IFSC Code" />
+          <input type="number" step="0.1" value={form.tdsPercentage} onChange={(event) => handleChange('tdsPercentage', event.target.value)} className="border px-3 py-2 text-sm" placeholder="TDS % (e.g. 5.0)" />
           <div className="md:col-span-2 xl:col-span-4">
             <button
               type="submit"

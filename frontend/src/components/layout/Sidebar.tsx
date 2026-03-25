@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Mail, UserCircle, FileText, Users, DollarSign, Calendar, Map, CheckSquare, Settings, Database } from 'lucide-react';
+import { Home, Mail, UserCircle, FileText, Users, DollarSign, Calendar, Map, CheckSquare, Settings, Database, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const USER_MENU = [
@@ -16,7 +16,8 @@ const USER_MENU = [
   { path: '/user-tree', label: 'User Tree', icon: <Users size={18} /> },
   { path: '/post-short-by', label: 'Post Short By', icon: <CheckSquare size={18} /> },
   { path: '/release-payment', label: 'Release Payment', icon: <DollarSign size={18} /> },
-  { path: '/project-details', label: 'Project Details', icon: <Map size={18} /> }
+  { path: '/project-details', label: 'Project Details', icon: <Map size={18} /> },
+  { path: '/change-password', label: 'Change Password', icon: <Lock size={18} /> }
 ];
 
 const ADMIN_MENU = [
@@ -24,9 +25,8 @@ const ADMIN_MENU = [
   { path: '/admin/users', label: 'Manage All Users', icon: <Users size={18} /> },
   { path: '/admin/projects', label: 'Inventory & Projects', icon: <Database size={18} /> },
   { path: '/admin/payments', label: 'Global Ledger & Release', icon: <DollarSign size={18} /> },
-  { path: '/sale-report', label: 'Global Sale Report', icon: <FileText size={18} /> },
-  { path: '/emi-report', label: 'Global EMI Report', icon: <Calendar size={18} /> },
   { path: '/setting', label: 'System Settings', icon: <Settings size={18} /> },
+  ...USER_MENU.filter(m => m.path !== '/dashboard')
 ];
 
 const Sidebar = () => {

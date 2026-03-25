@@ -18,6 +18,7 @@ import UserTree from './pages/UserTree';
 import PostShortBy from './pages/PostShortBy';
 import ReleasePayment from './pages/ReleasePayment';
 import ProjectDetails from './pages/ProjectDetails';
+import ChangePassword from './pages/ChangePassword';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -65,6 +66,7 @@ function App() {
           <Route path="/post-short-by" element={<ProtectedRoute><PostShortBy /></ProtectedRoute>} />
           <Route path="/release-payment" element={<ProtectedRoute><ReleasePayment /></ProtectedRoute>} />
           <Route path="/project-details" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
+          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
 
           {/* ADMIN ROUTES */}
           <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
