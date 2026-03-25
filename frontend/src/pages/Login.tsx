@@ -30,7 +30,7 @@ const Login = () => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-6 py-5 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">I&S BuildTech</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Unique Investors</p>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">Secure Portal Login</h1>
           <p className="mt-2 text-sm text-slate-500">Sign in with your assigned production credentials.</p>
         </div>

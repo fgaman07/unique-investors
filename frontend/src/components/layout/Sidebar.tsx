@@ -38,7 +38,7 @@ const Sidebar = () => {
   return (
     <div className="w-56 bg-brand-primary text-white h-full flex flex-col shadow-lg z-20">
       <div className="h-14 flex items-center justify-center bg-brand-sidebar">
-        <h1 className="text-xl font-medium tracking-wide">I & S BuildTech</h1>
+        <h1 className="text-xl font-medium tracking-wide">Unique Investors</h1>
       </div>
       <div className="py-2 text-[10px] text-center border-b border-brand-sidebarHover bg-brand-primary font-bold tracking-[0.25em]">
         {titleText}
