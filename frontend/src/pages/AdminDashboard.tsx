@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../context/AuthContext';
-import { Users, Building, DollarSign, Briefcase } from 'lucide-react';
+import { Users, Building, IndianRupee, Briefcase } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState<any>(null);
@@ -24,107 +24,113 @@ const AdminDashboard = () => {
   if (!stats) return <div className="p-8 text-center text-red-500">Failed to load admin stats. Please check server connection.</div>;
 
   return (
-    <div className="p-4 bg-gray-50 space-y-6 min-h-full">
+    <div className="p-4 bg-brand-bg space-y-6 min-h-full">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Global Admin Control Center</h1>
-          <p className="text-sm text-gray-500">Unique Investors Unified System Status</p>
+          <h1 className="text-2xl font-bold text-brand-primary uppercase tracking-tight">Global Admin Control Center</h1>
+          <p className="text-sm text-brand-muted font-medium">Unique Investors Unified System Status</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Users */}
-        <div className="bg-white p-4 rounded shadow-sm border-l-4 border-blue-500 flex items-center space-x-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+        <div className="card p-4 border-l-4 border-brand-info flex items-center space-x-4">
+          <div className="p-3 bg-brand-info/5 text-brand-info rounded-full border border-brand-info/20">
             <Users size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">TOTAL NETWORK</p>
-            <h2 className="text-2xl font-bold text-gray-800">{stats.totalUsers}</h2>
-            <p className="text-xs text-gray-400 mt-1">{stats.totalAgents} Active Agents</p>
+            <p className="text-xs text-brand-muted font-bold tracking-widest uppercase">TOTAL NETWORK</p>
+            <h2 className="text-2xl font-bold text-brand-primary">{stats.totalUsers}</h2>
+            <p className="text-xs text-brand-muted mt-1 font-medium">{stats.totalAgents} Active Agents</p>
           </div>
         </div>
 
         {/* Global Sales */}
-        <div className="bg-white p-4 rounded shadow-sm border-l-4 border-green-500 flex items-center space-x-4">
-          <div className="p-3 bg-green-50 text-green-600 rounded-full">
-            <DollarSign size={24} />
+        <div className="card p-4 border-l-4 border-brand-success flex items-center space-x-4">
+          <div className="p-3 bg-brand-success/5 text-brand-success rounded-full border border-brand-success/20">
+            <IndianRupee size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">GLOBAL REVENUE</p>
-            <h2 className="text-2xl font-bold text-gray-800">₹ {(stats.totalSaleAmount / 100000).toFixed(2)}L</h2>
-            <p className="text-xs text-green-600 mt-1">₹ {(stats.totalCollected / 100000).toFixed(2)}L Collected</p>
+            <p className="text-xs text-brand-muted font-bold tracking-widest uppercase">GLOBAL REVENUE</p>
+            <h2 className="text-2xl font-bold text-brand-primary">₹ {(stats.totalSaleAmount / 100000).toFixed(2)}L</h2>
+            <p className="text-xs text-brand-success mt-1 font-semibold">₹ {(stats.totalCollected / 100000).toFixed(2)}L Collected</p>
           </div>
         </div>
 
         {/* Projects / Inventory */}
-        <div className="bg-white p-4 rounded shadow-sm border-l-4 border-orange-500 flex items-center space-x-4">
-          <div className="p-3 bg-orange-50 text-orange-600 rounded-full">
+        <div className="card p-4 border-l-4 border-brand-warning flex items-center space-x-4">
+          <div className="p-3 bg-brand-warning/5 text-brand-warning rounded-full border border-brand-warning/20">
             <Building size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">INVENTORY</p>
-            <h2 className="text-2xl font-bold text-gray-800">{stats.totalProperties}</h2>
-            <p className="text-xs text-gray-400 mt-1">Units across {stats.totalProjects} Projects</p>
+            <p className="text-xs text-brand-muted font-bold tracking-widest uppercase">INVENTORY</p>
+            <h2 className="text-2xl font-bold text-brand-primary">{stats.totalProperties}</h2>
+            <p className="text-xs text-brand-muted mt-1 font-medium">Units across {stats.totalProjects} Projects</p>
           </div>
         </div>
 
         {/* Global Commissions */}
-        <div className="bg-white p-4 rounded shadow-sm border-l-4 border-purple-500 flex items-center space-x-4">
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-full">
+        <div className="card p-4 border-l-4 border-brand-danger flex items-center space-x-4">
+          <div className="p-3 bg-brand-danger/5 text-brand-danger rounded-full border border-brand-danger/20">
             <Briefcase size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">COMMISSIONS (PENDING)</p>
-            <h2 className="text-2xl font-bold text-red-600">₹ {(stats.pendingCommissions / 100000).toFixed(2)}L</h2>
-            <p className="text-xs text-green-600 mt-1">₹ {(stats.releasedCommissions / 100000).toFixed(2)}L Released</p>
+            <p className="text-xs text-brand-muted font-bold tracking-widest uppercase">COMMISSIONS (PENDING)</p>
+            <h2 className="text-2xl font-bold text-brand-danger">₹ {(stats.pendingCommissions / 100000).toFixed(2)}L</h2>
+            <p className="text-xs text-brand-success mt-1 font-semibold">₹ {(stats.releasedCommissions / 100000).toFixed(2)}L Released</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <div className="bg-white border rounded shadow-sm p-4 h-96 overflow-auto custom-scrollbar">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Live Activity (Recent Sales)</h3>
+        <div className="card p-4 h-96 overflow-auto custom-scrollbar">
+          <h3 className="text-lg font-bold text-brand-primary border-b border-brand-border pb-2 mb-4 flex items-center">
+            <span className="w-1 h-5 bg-brand-accent mr-3"></span>
+            Live Activity (Recent Sales)
+          </h3>
           {stats.recentSales?.length > 0 ? (
             <div className="space-y-3">
               {stats.recentSales.map((sale: any) => (
-                <div key={sale.id} className="flex justify-between items-center p-3 border rounded text-sm hover:bg-gray-50">
+                <div key={sale.id} className="flex justify-between items-center p-3 border border-brand-border bg-brand-surface text-sm hover:bg-brand-bg transition-colors">
                   <div>
                     <span className="font-bold block text-brand-primary">{sale.receiptNo}</span>
-                    <span className="text-gray-500">{sale.agent?.name}</span>
+                    <span className="text-brand-muted text-xs">{sale.agent?.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold flex items-center text-gray-700">₹{sale.totalAmount.toLocaleString()}</span>
-                    <span className="text-gray-400 block text-xs">{sale.property?.propertyNo} ({sale.property?.type})</span>
+                    <span className="font-bold flex items-center text-brand-primary">₹{sale.totalAmount.toLocaleString()}</span>
+                    <span className="text-brand-muted block text-xs">{sale.property?.propertyNo} ({sale.property?.type})</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-             <div className="text-center text-gray-400 mt-10">No recent sales found</div>
+             <div className="text-center text-brand-muted mt-10">No recent sales found</div>
           )}
         </div>
 
-        <div className="bg-white border rounded shadow-sm p-4">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Inventory Status</h3>
+        <div className="card p-4">
+          <h3 className="text-lg font-bold text-brand-primary border-b border-brand-border pb-2 mb-4 flex items-center">
+            <span className="w-1 h-5 bg-brand-accent mr-3"></span>
+            Inventory Status
+          </h3>
           <div className="mt-8 space-y-6">
             <div>
-              <div className="flex justify-between mb-1 text-sm font-medium">
+              <div className="flex justify-between mb-2 text-sm font-bold text-brand-primary">
                 <span>Booked Properties</span>
-                <span>{stats.bookedProperties} / {stats.totalProperties}</span>
+                <span className="text-brand-danger">{stats.bookedProperties} / {stats.totalProperties}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${stats.totalProperties > 0 ? (stats.bookedProperties / stats.totalProperties) * 100 : 0}%` }}></div>
+              <div className="w-full bg-brand-bg rounded-full h-3 border border-brand-border">
+                <div className="bg-brand-danger h-full rounded-full transition-all duration-500 shadow-sm" style={{ width: `${stats.totalProperties > 0 ? (stats.bookedProperties / stats.totalProperties) * 100 : 0}%` }}></div>
               </div>
             </div>
 
             <div>
-              <div className="flex justify-between mb-1 text-sm font-medium">
+              <div className="flex justify-between mb-2 text-sm font-bold text-brand-primary">
                 <span>Payment Collection (EMIs)</span>
-                <span>{stats.paidEMIs} / {stats.totalEMIs} Paid</span>
+                <span className="text-brand-success">{stats.paidEMIs} / {stats.totalEMIs} Paid</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${stats.totalEMIs ? (stats.paidEMIs / stats.totalEMIs) * 100 : 0}%` }}></div>
+              <div className="w-full bg-brand-bg rounded-full h-3 border border-brand-border">
+                <div className="bg-brand-success h-full rounded-full transition-all duration-500 shadow-sm" style={{ width: `${stats.totalEMIs ? (stats.paidEMIs / stats.totalEMIs) * 100 : 0}%` }}></div>
               </div>
             </div>
           </div>

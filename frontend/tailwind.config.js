@@ -8,11 +8,20 @@ export default {
     extend: {
       colors: {
         brand: {
-          primary: '#23b0c7', // The exact Sea-Blue from legacy UI screenshots
-          sidebar: '#22c1d9', // Slightly lighter sidebar variant
-          sidebarHover: '#139ab3', 
-          tableHeader: '#38cbdc', // Greenish-blue table header
-          tableRowAlt: '#e9f9fb', // Light row color
+          primary: '#1a202c', // Charcoal (Main Text)
+          sidebar: '#ffffff', // Pure White (Sidebar)
+          sidebarHover: '#f0fdfa', // Very light mint
+          tableHeader: '#34d399', // Mint Green
+          tableRowAlt: '#f9fafb', // Lightest gray for row stripes
+          accent: '#10b981', // Active Mint (Vibrant)
+          bg: '#f0fdfa', // Global Minty Background (Cyan-50 tint)
+          surface: '#ffffff', // Pure White for cards
+          border: '#e2e8f0', // Soft borders
+          muted: '#718096', // Slate-500 (Secondary text)
+          success: '#10b981',
+          danger: '#ef4444',
+          info: '#3b82f6',
+          warning: '#f59e0b',
         }
       }
     },

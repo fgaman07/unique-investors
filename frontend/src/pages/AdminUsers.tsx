@@ -172,14 +172,14 @@ const AdminUsers = () => {
         <button
           type="button"
           onClick={() => handleEdit(user)}
-          className="bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700"
+          className="bg-brand-info/10 px-2 py-1 text-xs font-bold text-brand-info border border-brand-info/20 hover:bg-brand-info hover:text-white transition-colors uppercase"
         >
           Edit
         </button>
         <button
           type="button"
           onClick={() => handleStatusToggle(user)}
-          className={`px-2 py-1 text-xs font-semibold ${user.status === 'ACTIVE' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}
+          className={`px-2 py-1 text-xs font-bold border transition-colors uppercase ${user.status === 'ACTIVE' ? 'bg-brand-danger/10 text-brand-danger border-brand-danger/20 hover:bg-brand-danger hover:text-white' : 'bg-brand-success/10 text-brand-success border-brand-success/20 hover:bg-brand-success hover:text-white'}`}
         >
           {user.status === 'ACTIVE' ? 'Block' : 'Activate'}
         </button>
@@ -201,59 +201,59 @@ const AdminUsers = () => {
   ];
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="border border-slate-200 bg-white p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">
-            {editingUser ? 'Edit User' : 'Create New User'}
+    <div className="space-y-4 p-4 bg-brand-bg min-h-full">
+      <div className="card p-4">
+        <div className="mb-4 flex items-center justify-between border-b border-brand-border pb-2">
+          <h2 className="text-lg font-bold text-brand-primary uppercase tracking-tight">
+            {editingUser ? 'Edit User Record' : 'Enroll New User'}
           </h2>
           {editingUser ? (
-            <button type="button" onClick={resetForm} className="text-sm font-semibold text-slate-500">
+            <button type="button" onClick={resetForm} className="text-xs font-bold text-brand-muted hover:text-brand-danger uppercase">
               Cancel Edit
             </button>
           ) : null}
         </div>
 
         {message ? (
-          <div className="mb-4 border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          <div className="mb-4 border border-brand-info/20 bg-brand-info/5 px-3 py-2 text-sm font-medium text-brand-info">
             {message}
           </div>
         ) : null}
 
         <form onSubmit={handleCreateOrUpdate} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Full name" required />
-          <input value={form.email} onChange={(event) => handleChange('email', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Email" />
-          <input value={form.mobile} onChange={(event) => handleChange('mobile', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Mobile number" required />
-          <input value={form.panNo} onChange={(event) => handleChange('panNo', event.target.value)} className="border px-3 py-2 text-sm" placeholder="PAN number" />
+          <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Full name" required />
+          <input value={form.email} onChange={(event) => handleChange('email', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Email" />
+          <input value={form.mobile} onChange={(event) => handleChange('mobile', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Mobile number" required />
+          <input value={form.panNo} onChange={(event) => handleChange('panNo', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="PAN number" />
           {!editingUser ? (
-            <input value={form.password} onChange={(event) => handleChange('password', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Temporary password" type="password" required />
+            <input value={form.password} onChange={(event) => handleChange('password', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Temporary password" type="password" required />
           ) : null}
-          <select value={form.role} onChange={(event) => handleChange('role', event.target.value)} className="border px-3 py-2 text-sm">
-            <option value="AGENT">Agent</option>
-            <option value="MANAGER">Manager</option>
-            <option value="ADMIN">Admin</option>
+          <select value={form.role} onChange={(event) => handleChange('role', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary font-bold">
+            <option value="AGENT">Member Agent</option>
+            <option value="MANAGER">District Manager</option>
+            <option value="ADMIN">System Administrator</option>
           </select>
-          <input value={form.rank} onChange={(event) => handleChange('rank', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Rank" required />
-          <select value={form.sponsorId} onChange={(event) => handleChange('sponsorId', event.target.value)} className="border px-3 py-2 text-sm">
-            <option value="">No sponsor / Company</option>
+          <input value={form.rank} onChange={(event) => handleChange('rank', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary font-bold" placeholder="Rank" required />
+          <select value={form.sponsorId} onChange={(event) => handleChange('sponsorId', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary font-bold">
+            <option value="">No sponsor / Company Root</option>
             {sponsorOptions.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.name} ({user.userId})
               </option>
             ))}
           </select>
-          <input value={form.address} onChange={(event) => handleChange('address', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Address" />
-          <input value={form.bankName} onChange={(event) => handleChange('bankName', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Bank Name" />
-          <input value={form.accountNo} onChange={(event) => handleChange('accountNo', event.target.value)} className="border px-3 py-2 text-sm" placeholder="Account Number" />
-          <input value={form.ifscCode} onChange={(event) => handleChange('ifscCode', event.target.value)} className="border px-3 py-2 text-sm" placeholder="IFSC Code" />
-          <input type="number" step="0.1" value={form.tdsPercentage} onChange={(event) => handleChange('tdsPercentage', event.target.value)} className="border px-3 py-2 text-sm" placeholder="TDS % (e.g. 5.0)" />
-          <div className="md:col-span-2 xl:col-span-4">
+          <input value={form.address} onChange={(event) => handleChange('address', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Address" />
+          <input value={form.bankName} onChange={(event) => handleChange('bankName', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Bank Name" />
+          <input value={form.accountNo} onChange={(event) => handleChange('accountNo', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="Account Number" />
+          <input value={form.ifscCode} onChange={(event) => handleChange('ifscCode', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="IFSC Code" />
+          <input type="number" step="0.1" value={form.tdsPercentage} onChange={(event) => handleChange('tdsPercentage', event.target.value)} className="border border-brand-border px-3 py-2 text-sm bg-brand-bg/30 focus:bg-white transition-colors outline-none focus:border-brand-primary" placeholder="TDS % (e.g. 5.0)" />
+          <div className="md:col-span-2 xl:col-span-4 pt-2">
             <button
               type="submit"
-              className="bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="bg-brand-sidebar px-6 py-2.5 text-sm font-bold text-brand-accent hover:bg-brand-sidebarHover border border-brand-accent/20 transition-all uppercase tracking-widest"
               disabled={submitting}
             >
-              {submitting ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}
+              {submitting ? 'Processing...' : editingUser ? 'Apply User Updates' : 'Confirm User Enrollment'}
             </button>
           </div>
         </form>

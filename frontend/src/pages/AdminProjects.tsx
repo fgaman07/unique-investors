@@ -144,9 +144,9 @@ const AdminProjects = () => {
     ...property,
     projectNo: property.block?.project?.projectNo || '-',
     block: property.block?.name || '-',
-    ratePerSqYard: property.ratePerSqYard.toLocaleString('en-IN'),
-    plc: property.plc > 0 ? property.plc.toLocaleString('en-IN') : '0',
-    totalAmount: property.totalAmount.toLocaleString('en-IN'),
+    ratePerSqYard: `₹ ${property.ratePerSqYard.toLocaleString('en-IN')}`,
+    plc: property.plc > 0 ? `₹ ${property.plc.toLocaleString('en-IN')}` : '0',
+    totalAmount: `₹ ${property.totalAmount.toLocaleString('en-IN')}`,
     agentName: property.sales?.[0]?.agent ? `${property.sales[0].agent.name} (${property.sales[0].agent.userId})` : '-',
     statusDisplay: property.status === 'BOOKED'
       ? <span className="bg-red-50 px-2 py-1 text-xs font-semibold text-red-700">Booked</span>

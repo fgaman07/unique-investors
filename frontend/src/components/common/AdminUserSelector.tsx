@@ -23,25 +23,31 @@ export const AdminUserSelector = () => {
   if (user?.role !== 'ADMIN') return null;
 
   return (
-    <div className="bg-yellow-50 border-b-4 border-yellow-400 p-2 px-4 shadow-sm mb-4 flex items-center justify-between">
+    <div className="bg-slate-900 border-b border-white/10 p-2 px-4 shadow-md mb-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <span className="text-xl">👑</span>
+        <div className="w-8 h-8 rounded-full bg-brand-accent/20 flex items-center justify-center border border-brand-accent/30">
+          <span className="text-lg">👑</span>
+        </div>
         <div>
-          <h3 className="text-[13px] font-bold text-yellow-800 uppercase tracking-wide">Admin Impersonation Mode</h3>
-          <p className="text-[11px] text-yellow-700">Select an agent to view and edit their data.</p>
+          <h3 className="text-[12px] font-black text-brand-accent uppercase tracking-wider">Admin Impersonation</h3>
+          <p className="text-[10px] text-slate-400 font-medium italic">Viewing system as another user</p>
         </div>
       </div>
       <div>
         <select
           aria-label="Target User"
-          className="border border-yellow-300 text-[13px] font-bold outline-none rounded bg-white px-3 py-1.5 min-w-[250px] shadow-sm focus:border-yellow-500"
+          className="border border-slate-700 text-[13px] font-bold outline-none rounded bg-slate-800 text-white px-3 py-1.5 min-w-[280px] shadow-inner focus:border-brand-accent transition-all"
           value={targetUserId || ''}
           onChange={(e) => setTargetUserId(e.target.value || null)}
         >
-          <option value="">-- View My Own Data (Admin) --</option>
-          {users.map(u => (
-            <option key={u.id} value={u.id}>{u.name} ({u.userId})</option>
-          ))}
+          <option value="" className="bg-slate-900">-- SYSTEM VIEW (ADMIN) --</option>
+          <optgroup label="Select User to Impersonate" className="bg-slate-900 text-slate-400 font-normal">
+            {users.map(u => (
+              <option key={u.id} value={u.id} className="bg-slate-800 text-white font-bold">
+                {u.name} ({u.userId})
+              </option>
+            ))}
+          </optgroup>
         </select>
       </div>
     </div>

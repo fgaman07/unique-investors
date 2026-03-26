@@ -8,6 +8,7 @@ import { comparePassword, hashPassword } from '../../utils/hashPassword.js';
 import { env } from '../../config/env.js';
 import jwt from 'jsonwebtoken';
 import { logAudit } from '../../utils/auditLogger.js';
+import { logger } from '../../utils/logger.js';
 
 const baseUserSchema = z.object({
   name: z.string().trim().min(2),
@@ -184,7 +185,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    console.error('[Auth/Register] Error:', error);
+    logger.error('[Auth/Register] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -228,7 +229,7 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    console.error('[Auth/CreateUser] Error:', error);
+    logger.error('[Auth/CreateUser] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -261,7 +262,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    console.error('[Auth/Login] Error:', error);
+    logger.error('[Auth/Login] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -376,7 +377,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    console.error('[Auth/UpdateUser] Error:', error);
+    logger.error('[Auth/UpdateUser] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

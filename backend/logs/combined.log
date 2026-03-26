@@ -8,3 +8,13 @@
 {"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 11:32:32"}
 {"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:32:58"}
 {"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 11:33:33"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:50:39"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:51:20"}
+{"level":"error","message":"[GlobalErrorHandler] Expected property name or '}' in JSON at position 1 (line 1 column 2)","stack":"SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)\n    at JSON.parse (<anonymous>)\n    at parse (D:\\Unique Investors\\backend\\node_modules\\body-parser\\lib\\types\\json.js:72:19)\n    at D:\\Unique Investors\\backend\\node_modules\\body-parser\\lib\\read.js:162:18\n    at AsyncResource.runInAsyncScope (node:async_hooks:226:14)\n    at invokeCallback (D:\\Unique Investors\\backend\\node_modules\\raw-body\\index.js:238:16)\n    at done (D:\\Unique Investors\\backend\\node_modules\\raw-body\\index.js:227:7)\n    at IncomingMessage.onEnd (D:\\Unique Investors\\backend\\node_modules\\raw-body\\index.js:287:7)\n    at IncomingMessage.emit (node:events:508:20)\n    at endReadableNT (node:internal/streams/readable:1729:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)","timestamp":"2026-03-26 11:53:47"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:55:17"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 12:03:33"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 12:06:25"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 12:09:08"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 12:17:55"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 13:43:31"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 13:43:31"}

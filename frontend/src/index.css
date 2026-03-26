@@ -4,20 +4,24 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-800 antialiased font-sans;
+    @apply bg-brand-bg text-brand-primary antialiased font-sans transition-colors duration-500;
   }
 }
 
 /* Reusable Legacy Table Classes to match screenshots exactly */
 .legacy-table {
-  @apply w-full border-collapse border border-gray-300 text-sm whitespace-nowrap;
+  @apply w-full border-collapse border border-brand-border text-sm whitespace-nowrap;
 }
 .legacy-table th {
-  @apply bg-brand-tableHeader text-white border border-gray-300 px-4 py-2 font-medium text-left align-middle;
+  @apply bg-brand-tableHeader text-white border border-brand-border px-4 py-2 font-semibold text-left align-middle uppercase tracking-wider;
 }
 .legacy-table td {
-  @apply border border-gray-300 px-4 py-2 align-middle;
+  @apply border border-brand-border px-4 py-2 align-middle bg-brand-surface;
 }
-.legacy-table tbody tr:nth-child(even) {
+.legacy-table tbody tr:nth-child(even) td {
   @apply bg-brand-tableRowAlt;
+}
+
+.card {
+  @apply bg-brand-surface border border-brand-border shadow-sm rounded-sm;
 }
