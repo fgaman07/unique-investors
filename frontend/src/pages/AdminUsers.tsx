@@ -59,8 +59,10 @@ const AdminUsers = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.get<UserRecord[]>('/auth/users');
-      setUsers(response.data);
+      const response = await api.get('/auth/users?limit=1000');
+      // Handle both paginated { users: [...] } and flat array responses
+      const userData = Array.isArray(response.data) ? response.data : response.data.users;
+      setUsers(userData || []);
     } catch (error) {
       console.error('Error fetching users', error);
       setMessage('Failed to load users from the database.');

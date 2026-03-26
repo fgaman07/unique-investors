@@ -1,11 +1,26 @@
 import express from 'express';
-import { createUser, getAllUsers, getProfile, login, register, updateUser, updateUserStatus, changePassword, updateProfile, adminResetPassword } from './auth.controller.js';
+import { 
+  createUser, 
+  getAllUsers, 
+  getProfile, 
+  login, 
+  register, 
+  updateUser, 
+  updateUserStatus, 
+  changePassword, 
+  updateProfile, 
+  adminResetPassword,
+  refresh,
+  logout
+} from './auth.controller.js';
 import { protect, adminOnly } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/refresh', refresh);
+router.post('/logout', logout);
 router.get('/me', protect, getProfile);
 router.put('/change-password', protect, changePassword);
 router.put('/profile', protect, updateProfile);

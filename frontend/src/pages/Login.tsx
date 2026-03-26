@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,15 +17,20 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const authUser = await login(userId, password);
-    setLoading(false);
+    try {
+      const result = await login(userId, password);
+      setLoading(false);
 
-    if (!authUser) {
-      setError('Login failed. Please check your user ID, password, and backend connection.');
-      return;
+      if (!result) {
+        setError('Invalid user ID or password. Please try again.');
+        return;
+      }
+
+      navigate(result.user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+    } catch {
+      setLoading(false);
+      setError('Unable to connect to the server. Please check your network.');
     }
-
-    navigate(authUser.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
   };
 
   return (
@@ -53,6 +60,7 @@ const Login = () => {
               className="w-full border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
               placeholder="Enter your user ID"
               required
+              autoComplete="username"
             />
           </div>
 
@@ -60,14 +68,25 @@ const Login = () => {
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
-              placeholder="Enter your password"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full border border-slate-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-slate-500"
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button

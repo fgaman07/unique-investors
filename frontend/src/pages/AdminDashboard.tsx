@@ -114,7 +114,7 @@ const AdminDashboard = () => {
                 <span>{stats.bookedProperties} / {stats.totalProperties}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${(stats.bookedProperties / stats.totalProperties) * 100}%` }}></div>
+                <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${stats.totalProperties > 0 ? (stats.bookedProperties / stats.totalProperties) * 100 : 0}%` }}></div>
               </div>
             </div>
 

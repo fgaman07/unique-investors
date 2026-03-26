@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../../middleware/authMiddleware.js';
+import { logAudit } from '../../utils/auditLogger.js';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
 import { rebuildCommissionLedger } from '../mlm/mlm.service.js';
@@ -9,7 +11,7 @@ const companySettingsSchema = z.object({
   address: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
   supportEmail: z.string().trim().email().optional().or(z.literal('')).transform((value) => value || undefined),
   contactNumber: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
-});
+}).passthrough();
 
 const commissionSettingsSchema = z.object({
   settings: z.array(
@@ -67,14 +69,24 @@ export const getCompanySettings = async (_req: Request, res: Response): Promise<
   }
 };
 
-export const updateCompanySettings = async (req: Request, res: Response): Promise<void> => {
+export const updateCompanySettings = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const payload = companySettingsSchema.parse(req.body);
     const existing = await ensureCompanySettings();
 
+    const { id: _id, ...updateData } = payload;
     const settings = await prisma.companySettings.update({
       where: { id: existing.id },
-      data: payload,
+      data: updateData,
+    });
+
+    await logAudit({
+      req,
+      userId: req.user?.id,
+      action: 'UPDATE_COMPANY_SETTINGS',
+      resource: 'CompanySettings',
+      resourceId: settings.id,
+      details: updateData,
     });
 
     res.json({ message: 'Company settings updated successfully', settings });
@@ -99,7 +111,7 @@ export const getCommissionSettings = async (_req: Request, res: Response): Promi
   }
 };
 
-export const updateCommissionSettings = async (req: Request, res: Response): Promise<void> => {
+export const updateCommissionSettings = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { settings } = commissionSettingsSchema.parse(req.body);
 
@@ -118,6 +130,15 @@ export const updateCommissionSettings = async (req: Request, res: Response): Pro
     });
 
     const refreshed = await prisma.commissionSetting.findMany({ orderBy: { level: 'asc' } });
+
+    await logAudit({
+      req,
+      userId: req.user?.id,
+      action: 'UPDATE_COMMISSION_SETTINGS',
+      resource: 'CommissionSettings',
+      details: { updatedSettingsCount: settings.length },
+    });
+
     res.json({ message: 'Commission settings updated successfully', settings: refreshed });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -130,10 +151,18 @@ export const updateCommissionSettings = async (req: Request, res: Response): Pro
   }
 };
 
-export const recalculateCommissionLedger = async (_req: Request, res: Response): Promise<void> => {
+export const recalculateCommissionLedger = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     await ensureCommissionSettings();
     await rebuildCommissionLedger();
+
+    await logAudit({
+      req,
+      userId: req.user?.id,
+      action: 'RECALCULATE_COMMISSION_LEDGER',
+      resource: 'CommissionLedger',
+    });
+
     res.json({ message: 'Commission ledger recalculated successfully' });
   } catch (error) {
     console.error('[Settings/RecalculateLedger] Error:', error);

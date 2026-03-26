@@ -53,7 +53,8 @@ export const distributeCommissions = async (agentId: string, transactionAmount: 
 };
 
 export const rebuildCommissionLedger = async (): Promise<void> => {
-  await prisma.commissionLedger.deleteMany();
+  // Only delete PENDING commissions; RELEASED ones have already been paid out
+  await prisma.commissionLedger.deleteMany({ where: { status: 'PENDING' } });
 
   const sales = await prisma.sale.findMany({
     orderBy: { saleDate: 'asc' },

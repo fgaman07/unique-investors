@@ -22,7 +22,7 @@ const createPropertySchema = z.object({
     plc: z.coerce.number().min(0).default(0),
     dimension: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
     blockId: z.string().trim().min(1),
-});
+}).passthrough();
 const updatePropertySchema = z.object({
     propertyNo: z.string().trim().min(2).optional(),
     type: z.nativeEnum(PropertyType).optional(),
@@ -105,12 +105,14 @@ export const addBlock = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-export const getProjects = async (_req, res) => {
+export const getProjects = async (req, res) => {
     try {
+        const { include } = req.query;
+        const includeBlocks = include === 'blocks';
         const projects = await prisma.project.findMany({
             orderBy: { createdAt: 'desc' },
             include: {
-                blocks: {
+                blocks: includeBlocks ? {
                     orderBy: { name: 'asc' },
                     include: {
                         properties: {
@@ -124,7 +126,7 @@ export const getProjects = async (_req, res) => {
                             },
                         },
                     },
-                },
+                } : true,
             },
         });
         res.json(projects);

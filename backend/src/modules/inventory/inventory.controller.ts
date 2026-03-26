@@ -27,7 +27,7 @@ const createPropertySchema = z.object({
   plc: z.coerce.number().min(0).default(0),
   dimension: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
   blockId: z.string().trim().min(1),
-});
+}).passthrough();
 
 const updatePropertySchema = z.object({
   propertyNo: z.string().trim().min(2).optional(),
@@ -124,12 +124,15 @@ export const addBlock = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getProjects = async (_req: Request, res: Response): Promise<void> => {
+export const getProjects = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { include } = req.query;
+    const includeBlocks = include === 'blocks';
+
     const projects = await prisma.project.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        blocks: {
+        blocks: includeBlocks ? {
           orderBy: { name: 'asc' },
           include: {
             properties: {
@@ -143,7 +146,7 @@ export const getProjects = async (_req: Request, res: Response): Promise<void> =
               },
             },
           },
-        },
+        } : true,
       },
     });
 

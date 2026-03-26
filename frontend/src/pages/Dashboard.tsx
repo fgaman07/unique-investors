@@ -65,7 +65,7 @@ const Dashboard = () => {
           <div>
             <p className="text-sm text-gray-500 font-medium tracking-wide">DIRECT MEMBERS</p>
             <h2 className="text-2xl font-bold text-gray-800">{stats.directMembers}</h2>
-            <p className="text-xs text-gray-400 mt-1">Level 1 referrrals</p>
+            <p className="text-xs text-gray-400 mt-1">Level 1 referrals</p>
           </div>
         </div>
 

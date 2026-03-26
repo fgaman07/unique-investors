@@ -3,8 +3,11 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { AuthRequest } from '../../middleware/authMiddleware.js';
 import { prisma } from '../../lib/prisma.js';
-import { generateToken } from '../../utils/generateToken.js';
+import { generateAccessToken, generateRefreshToken } from '../../utils/generateToken.js';
 import { comparePassword, hashPassword } from '../../utils/hashPassword.js';
+import { env } from '../../config/env.js';
+import jwt from 'jsonwebtoken';
+import { logAudit } from '../../utils/auditLogger.js';
 
 const baseUserSchema = z.object({
   name: z.string().trim().min(2),
@@ -76,20 +79,16 @@ const userSelect = {
   sponsor: { select: { userId: true, name: true } },
 } satisfies Prisma.UserSelect;
 
-const buildAuthResponse = (user: {
-  id: string;
-  userId: string;
-  name: string;
-  role: UserRole;
-  status: UserStatus;
-}) => ({
-  id: user.id,
-  userId: user.userId,
-  name: user.name,
-  role: user.role,
-  status: user.status,
-  token: generateToken(user.id, user.role),
-});
+const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
+
+const setRefreshTokenCookie = (res: Response, token: string) => {
+  res.cookie(REFRESH_TOKEN_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
 
 const normalizeOptionalValue = (value?: string | null) => {
   if (value === '' || value === undefined) {
@@ -110,6 +109,31 @@ const generateUniqueUserId = async (): Promise<string> => {
   }
 
   throw new Error('Unable to generate a unique userId');
+};
+
+const handleAuthSuccess = async (res: Response, user: any) => {
+  const accessToken = generateAccessToken(user.id, user.role);
+  const refreshToken = generateRefreshToken(user.id, user.role);
+
+  // Store refresh token in DB
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    },
+  });
+
+  setRefreshTokenCookie(res, refreshToken);
+
+  return {
+    id: user.id,
+    userId: user.userId,
+    name: user.name,
+    role: user.role,
+    status: user.status,
+    token: accessToken,
+  };
 };
 
 const findDuplicateUser = async (mobile: string, email?: string) =>
@@ -153,7 +177,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    res.status(201).json(buildAuthResponse(user));
+    res.status(201).json(await handleAuthSuccess(res, user));
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: error.issues[0]?.message || 'Invalid registration payload' });
@@ -196,6 +220,7 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
       select: userSelect,
     });
 
+    // For admin-created users, we don't log them in immediately (no cookie/token needed for current session)
     res.status(201).json(user);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -229,7 +254,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    res.json(buildAuthResponse(user));
+    res.json(await handleAuthSuccess(res, user));
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: error.issues[0]?.message || 'Invalid login payload' });
@@ -263,7 +288,9 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { search, role } = req.query;
+    const { search, role, page, limit } = req.query;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(limit) || 50));
     const where: Prisma.UserWhereInput = {};
 
     if (role) {
@@ -279,16 +306,21 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
       ];
     }
 
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        ...userSelect,
-        _count: { select: { downline: true, sales: true, commissions: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const [users, totalCount] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          ...userSelect,
+          _count: { select: { downline: true, sales: true, commissions: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (pageNum - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.user.count({ where }),
+    ]);
 
-    res.json(users);
+    res.json({ users, total: totalCount, page: pageNum, limit: pageSize, pages: Math.ceil(totalCount / pageSize) });
   } catch (error) {
     console.error('[Auth/GetUsers] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -299,6 +331,23 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const id = req.params.id as string;
     const payload = updateUserSchema.parse(req.body);
+
+    // Check for duplicate email/mobile on other users
+    if (payload.email || payload.mobile) {
+      const conditions: Prisma.UserWhereInput[] = [];
+      if (payload.mobile) conditions.push({ mobile: payload.mobile });
+      if (payload.email && payload.email !== '') conditions.push({ email: payload.email });
+      if (conditions.length > 0) {
+        const duplicate = await prisma.user.findFirst({
+          where: { AND: [{ id: { not: id } }, { OR: conditions }] },
+          select: { id: true },
+        });
+        if (duplicate) {
+          res.status(400).json({ message: 'Another user with this mobile or email already exists' });
+          return;
+        }
+      }
+    }
 
     const user = await prisma.user.update({
       where: { id },
@@ -343,6 +392,15 @@ export const updateUserStatus = async (req: AuthRequest, res: Response): Promise
       select: userSelect,
     });
 
+    await logAudit({
+      req,
+      userId: req.user!.id,
+      action: 'UPDATE_USER_STATUS',
+      resource: 'User',
+      resourceId: id,
+      details: { newStatus: status },
+    });
+
     res.json({ message: 'User status updated successfully', user });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -363,6 +421,14 @@ export const adminResetPassword = async (req: AuthRequest, res: Response): Promi
     await prisma.user.update({
       where: { id },
       data: { password: await hashPassword(newPassword) },
+    });
+
+    await logAudit({
+      req,
+      userId: req.user!.id,
+      action: 'ADMIN_RESET_PASSWORD',
+      resource: 'User',
+      resourceId: id,
     });
 
     res.json({ message: 'Password reset successfully' });
@@ -442,6 +508,62 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
     console.error('[Auth/UpdateProfile] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Refresh Access Token
+// @route   POST /api/auth/refresh
+// @access  Public (uses cookie)
+export const refresh = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
+
+    if (!refreshToken) {
+      res.status(401).json({ message: 'Refresh token missing' });
+      return;
+    }
+
+    const dbToken = await prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+      include: { user: true },
+    });
+
+    if (!dbToken || dbToken.expiresAt < new Date()) {
+      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      return;
+    }
+
+    // Verify JWT
+    try {
+      const decoded = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET) as any;
+      const accessToken = generateAccessToken(decoded.id, decoded.role);
+
+      res.json({ token: accessToken });
+    } catch (err) {
+      res.status(401).json({ message: 'Invalid refresh token' });
+    }
+  } catch (error) {
+    console.error('[Auth/Refresh] Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Public
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
+
+    if (refreshToken) {
+      await prisma.refreshToken.deleteMany({ where: { token: refreshToken } });
+    }
+
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('[Auth/Logout] Error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

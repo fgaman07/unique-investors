@@ -47,25 +47,37 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const sale = await prisma.$transaction(async (tx) => {
-      const createdSale = await tx.sale.create({
-        data: {
-          receiptNo,
-          propertyId,
-          agentId,
-          totalAmount: property.totalAmount,
-          paidAmount,
-          saleDate,
-        },
-      });
+    let sale;
+    try {
+      sale = await prisma.$transaction(async (tx) => {
+        // Atomic update to lock and update simultaneously, preventing race conditions
+        const updatedProperty = await tx.property.updateMany({
+          where: { id: propertyId, status: 'PENDING' },
+          data: { status: 'BOOKED' },
+        });
 
-      await tx.property.update({
-        where: { id: propertyId },
-        data: { status: 'BOOKED' },
-      });
+        if (updatedProperty.count === 0) {
+          throw new Error('PROPERTY_ALREADY_BOOKED');
+        }
 
-      return createdSale;
-    });
+        return await tx.sale.create({
+          data: {
+            receiptNo,
+            propertyId,
+            agentId,
+            totalAmount: property.totalAmount,
+            paidAmount,
+            saleDate,
+          },
+        });
+      });
+    } catch (txError: any) {
+      if (txError.message === 'PROPERTY_ALREADY_BOOKED') {
+        res.status(400).json({ message: 'Property is already booked by another simultaneous transaction' });
+        return;
+      }
+      throw txError;
+    }
 
     if (paidAmount > 0) {
       await distributeCommissions(agentId, paidAmount, receiptNo);
@@ -172,6 +184,21 @@ export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> =>
 export const payEMI = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { saleId, amount } = payEmiSchema.parse(req.body);
+    const idempotencyKey = req.headers['x-idempotency-key'] as string | undefined;
+
+    if (idempotencyKey) {
+      try {
+        await prisma.idempotencyRecord.create({
+          data: { key: idempotencyKey, payload: req.body },
+        });
+      } catch (e: any) {
+        if (e.code === 'P2002') { // Unique constraint violation
+          res.status(409).json({ message: 'EMI calculation already processed for this transaction (Duplicate Request).' });
+          return;
+        }
+        throw e;
+      }
+    }
 
     const sale = await prisma.sale.findUnique({
       where: { id: saleId },

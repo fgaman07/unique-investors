@@ -1,0 +1,10 @@
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-25 19:03:02"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-25 20:24:30"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-25 20:24:30"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-25 20:24:34"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 11:31:58"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 11:31:58"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:32:10"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 11:32:32"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 11:32:58"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 11:33:33"}

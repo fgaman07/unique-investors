@@ -74,10 +74,12 @@ const SaleReport = () => {
 
       if (isAdmin) {
         const [usersResponse, propertiesResponse] = await Promise.all([
-          api.get<AgentOption[]>('/auth/users'),
+          api.get('/auth/users?limit=1000'),
           api.get<PropertyOption[]>('/inventory/properties?status=PENDING'),
         ]);
-        setAgents(usersResponse.data.filter((record) => record.role !== 'ADMIN'));
+        // Handle paginated response
+        const usersData = Array.isArray(usersResponse.data) ? usersResponse.data : usersResponse.data.users;
+        setAgents((usersData || []).filter((record: AgentOption) => record.role !== 'ADMIN'));
         setProperties(propertiesResponse.data);
       }
     } catch (error) {

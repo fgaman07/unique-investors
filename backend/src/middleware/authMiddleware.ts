@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
 
 export interface AuthRequest extends Request {
   user?: { id: string; role: string };
@@ -11,7 +12,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string, role: string };
+      const decoded = jwt.verify(token, env.ACCESS_TOKEN_SECRET) as { id: string, role: string };
       req.user = decoded;
       next();
     } catch (error) {

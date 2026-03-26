@@ -7,7 +7,7 @@ const companySettingsSchema = z.object({
     address: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
     supportEmail: z.string().trim().email().optional().or(z.literal('')).transform((value) => value || undefined),
     contactNumber: z.string().trim().optional().or(z.literal('')).transform((value) => value || undefined),
-});
+}).passthrough();
 const commissionSettingsSchema = z.object({
     settings: z.array(z.object({
         level: z.coerce.number().int().min(1).max(10),
@@ -17,10 +17,10 @@ const commissionSettingsSchema = z.object({
     })).min(1),
 });
 const defaultCompanySettings = {
-    companyName: 'I&S Buildtech Pvt. Ltd.',
+    companyName: 'Unique Investors Pvt. Ltd.',
     registrationNo: 'U70100DL2026PTC000000',
     address: '102, Dream Plaza, Highway Road, Delhi - 110001',
-    supportEmail: 'support@isbuildtech.com',
+    supportEmail: 'support@uniqueinvestors.com',
     contactNumber: '+91-11-23456789',
 };
 const defaultCommissionSettings = [
@@ -59,9 +59,10 @@ export const updateCompanySettings = async (req, res) => {
     try {
         const payload = companySettingsSchema.parse(req.body);
         const existing = await ensureCompanySettings();
+        const { id: _id, ...updateData } = payload;
         const settings = await prisma.companySettings.update({
             where: { id: existing.id },
-            data: payload,
+            data: updateData,
         });
         res.json({ message: 'Company settings updated successfully', settings });
     }

@@ -1,7 +1,52 @@
+/// <reference types="node" />
 import { PrismaClient, PropertyType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+
+// Inline commission distribution for seeding (avoids import path issues with tsx)
+const defaultCommissionPlan = [
+  { level: 1, label: 'Direct Sale Incentive', percentage: 10 },
+  { level: 2, label: 'Level 2 Incentive', percentage: 5 },
+  { level: 3, label: 'Level 3 Incentive', percentage: 3 },
+  { level: 4, label: 'Level 4 Incentive', percentage: 2 },
+  { level: 5, label: 'Level 5 Incentive', percentage: 1 },
+];
+
+async function seedDistributeCommissions(agentId: string, transactionAmount: number, receiptNo: string) {
+  const persistedPlan = await prisma.commissionSetting.findMany({
+    where: { isActive: true },
+    orderBy: { level: 'asc' },
+  });
+  const commissionPlan = persistedPlan.length > 0 ? persistedPlan : defaultCommissionPlan;
+  let currentAgentId: string | null = agentId;
+
+  for (const slab of commissionPlan) {
+    if (!currentAgentId) break;
+
+    const user: { id: string; sponsorId: string | null } | null = await prisma.user.findUnique({
+      where: { id: currentAgentId },
+      select: { id: true, sponsorId: true },
+    });
+
+    if (!user) break;
+
+    const amount = transactionAmount * (slab.percentage / 100);
+    if (amount > 0) {
+      await prisma.commissionLedger.create({
+        data: {
+          userId: user.id,
+          amount,
+          incomeType: slab.label,
+          remarks: `Commission from receipt ${receiptNo}`,
+          status: 'PENDING',
+        },
+      });
+    }
+
+    currentAgentId = user.sponsorId;
+  }
+}
 
 async function seedSettings() {
   await prisma.companySettings.upsert({
@@ -17,7 +62,7 @@ async function seedSettings() {
     },
   });
 
-  const defaultCommissionPlan = [
+  const seedCommissionPlan = [
     { level: 1, label: 'Direct Sale Incentive', percentage: 10, isActive: true },
     { level: 2, label: 'Level 2 Incentive', percentage: 5, isActive: true },
     { level: 3, label: 'Level 3 Incentive', percentage: 3, isActive: true },
@@ -25,7 +70,7 @@ async function seedSettings() {
     { level: 5, label: 'Level 5 Incentive', percentage: 1, isActive: true },
   ];
 
-  for (const slab of defaultCommissionPlan) {
+  for (const slab of seedCommissionPlan) {
     await prisma.commissionSetting.upsert({
       where: { level: slab.level },
       update: {
@@ -197,10 +242,13 @@ async function main() {
       continue;
     }
 
-    await prisma.sale.upsert({
-      where: { receiptNo: fixture.receiptNo },
-      update: {},
-      create: {
+    const existingSale = await prisma.sale.findUnique({ where: { receiptNo: fixture.receiptNo } });
+    if (existingSale) {
+      continue; // Skip if sale already exists (idempotent)
+    }
+
+    await prisma.sale.create({
+      data: {
         receiptNo: fixture.receiptNo,
         propertyId: property.id,
         agentId: fixture.agentId,
@@ -214,6 +262,11 @@ async function main() {
       where: { id: property.id },
       data: { status: 'BOOKED' },
     });
+
+    // Distribute commissions for this sale
+    if (fixture.paidAmount > 0) {
+      await seedDistributeCommissions(fixture.agentId, fixture.paidAmount, fixture.receiptNo);
+    }
   }
 
   console.log('[Seed] Database seeded successfully');

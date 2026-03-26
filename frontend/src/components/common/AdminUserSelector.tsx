@@ -9,8 +9,10 @@ export const AdminUserSelector = () => {
     if (user?.role !== 'ADMIN') return;
     const fetchUsers = async () => {
       try {
-        const { data } = await api.get('/auth/users');
-        setUsers(data);
+        const { data } = await api.get('/auth/users?limit=1000');
+        // Handle both paginated { users: [...] } and flat array responses
+        const userData = Array.isArray(data) ? data : data.users;
+        setUsers(userData || []);
       } catch (err) {
         console.error('Failed to load users for selector', err);
       }

@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken';
-export const generateToken = (id, role) => {
-    // Signs a new JWT token valid for 30 days
-    return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-        expiresIn: '30d',
+import { env } from '../config/env.js';
+export const generateAccessToken = (id, role) => {
+    return jwt.sign({ id, role }, env.ACCESS_TOKEN_SECRET, {
+        expiresIn: env.ACCESS_TOKEN_EXPIRY,
+    });
+};
+export const generateRefreshToken = (id, role) => {
+    return jwt.sign({ id, role }, env.REFRESH_TOKEN_SECRET, {
+        expiresIn: env.REFRESH_TOKEN_EXPIRY,
     });
 };
