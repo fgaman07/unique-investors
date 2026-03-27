@@ -2,10 +2,16 @@ import { prisma } from '../lib/prisma.js';
 import { setCache, invalidateCache } from '../lib/redis.js';
 import { logger } from './logger.js';
 
+import { ensureCompanySettings, ensureCommissionSettings } from '../modules/settings/settings.controller.js';
+
 export const preWarmCaches = async () => {
   logger.info('[Cache Warmer] Booting up cache pre-hydration routine...');
 
   try {
+    // 0. Ensure settings exist in DB (Initialization)
+    await ensureCompanySettings();
+    await ensureCommissionSettings();
+    
     // 1. Prewarm Admin Stats (Global - Heaviest Query)
     logger.info('[Cache Warmer] Warming Admin Dashboard Stats...');
     const totalUsers = await prisma.user.count();
