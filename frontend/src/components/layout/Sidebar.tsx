@@ -30,7 +30,7 @@ const ADMIN_MENU = [
   { path: '/change-password', label: 'Change Password', icon: <Lock size={18} /> }
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { user } = useAuth();
   const location = useLocation();
   const isAdmin = user?.role === 'ADMIN';
@@ -38,12 +38,15 @@ const Sidebar = () => {
   const titleText = isAdmin ? 'A d m i n   P a n e l' : 'U s e r   P a n e l';
 
   return (
-    <div className="w-56 bg-brand-sidebar text-brand-primary h-full flex flex-col shadow-sm border-r border-brand-border z-20 transition-colors duration-300">
-      <div className="h-14 flex items-center justify-center bg-brand-sidebar border-b border-brand-border shadow-sm">
+    <div className={`fixed inset-y-0 left-0 w-64 md:w-56 bg-brand-sidebar text-brand-primary h-full flex flex-col shadow-xl md:shadow-sm border-r border-brand-border z-30 transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="h-14 flex items-center justify-between px-3 md:justify-center md:px-0 bg-brand-sidebar border-b border-brand-border shadow-sm">
         <h1 className="text-xl font-bold tracking-tight text-brand-accent drop-shadow-sm flex items-center">
-          <span className="w-2 h-6 bg-brand-accent mr-2 rounded-sm shadow-sm"></span>
-          Unique Investors
+          <span className="w-2 h-6 bg-brand-accent mr-2 rounded-sm shadow-sm md:block"></span>
+          <span className="truncate">Unique Investors</span>
         </h1>
+        <button onClick={onClose} className="md:hidden text-brand-muted hover:text-brand-primary p-1 rounded">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
       </div>
       <div className="py-2 text-[10px] text-center border-b border-brand-border bg-brand-bg font-bold tracking-[0.25em] text-brand-muted uppercase">
         {titleText}
