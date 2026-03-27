@@ -4,6 +4,42 @@ import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
 import { useAuth } from '../context/AuthContext';
 
+// ★ CRITICAL: This component MUST be defined OUTSIDE of ChangePassword.
+// Defining it inside causes React to destroy and recreate the <input> on every keystroke,
+// which unmounts the element, loses focus, and makes typing appear frozen.
+const PasswordInput = ({
+  label,
+  value,
+  onChange,
+  show,
+  onToggle,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  show: boolean;
+  onToggle: () => void;
+  placeholder: string;
+}) => (
+  <div>
+    <label className="block text-[13px] font-semibold text-gray-600 mb-1">{label}</label>
+    <div className="relative">
+      <input
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        required
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-brand-primary pr-10"
+        placeholder={placeholder}
+      />
+      <button type="button" onClick={onToggle} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+        {show ? <EyeOff size={16} /> : <Eye size={16} />}
+      </button>
+    </div>
+  </div>
+);
+
 const ChangePassword = () => {
   const { targetUserId } = useAuth();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -40,26 +76,8 @@ const ChangePassword = () => {
     }
   };
 
-  const toggle = (field: keyof typeof showPass) => setShowPass(p => ({ ...p, [field]: !p[field] }));
-
-  const PasswordInput = ({ label, field, showKey }: { label: string; field: keyof typeof form; showKey: keyof typeof showPass }) => (
-    <div>
-      <label className="block text-[13px] font-semibold text-gray-600 mb-1">{label}</label>
-      <div className="relative">
-        <input
-          type={showPass[showKey] ? 'text' : 'password'}
-          value={form[field]}
-          onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-          required
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-brand-primary pr-10"
-          placeholder={`Enter ${label.toLowerCase()}`}
-        />
-        <button type="button" onClick={() => toggle(showKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-          {showPass[showKey] ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      </div>
-    </div>
-  );
+  const updateField = (field: string, val: string) => setForm(p => ({ ...p, [field]: val }));
+  const toggleShow = (field: keyof typeof showPass) => setShowPass(p => ({ ...p, [field]: !p[field] }));
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -87,9 +105,32 @@ const ChangePassword = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!targetUserId && <PasswordInput label="Current Password" field="currentPassword" showKey="current" />}
-          <PasswordInput label="New Password" field="newPassword" showKey="new" />
-          <PasswordInput label="Confirm New Password" field="confirmPassword" showKey="confirm" />
+          {!targetUserId && (
+            <PasswordInput
+              label="Current Password"
+              value={form.currentPassword}
+              onChange={val => updateField('currentPassword', val)}
+              show={showPass.current}
+              onToggle={() => toggleShow('current')}
+              placeholder="Enter current password"
+            />
+          )}
+          <PasswordInput
+            label="New Password"
+            value={form.newPassword}
+            onChange={val => updateField('newPassword', val)}
+            show={showPass.new}
+            onToggle={() => toggleShow('new')}
+            placeholder="Enter new password"
+          />
+          <PasswordInput
+            label="Confirm New Password"
+            value={form.confirmPassword}
+            onChange={val => updateField('confirmPassword', val)}
+            show={showPass.confirm}
+            onToggle={() => toggleShow('confirm')}
+            placeholder="Enter confirm new password"
+          />
 
           <div className="pt-2">
             <button

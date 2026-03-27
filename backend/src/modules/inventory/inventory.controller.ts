@@ -2,16 +2,19 @@ import { Prisma, PropertyStatus, PropertyType } from '@prisma/client';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
+import { getCache, setCache, invalidateCache } from '../../lib/redis.js';
 
 const createProjectSchema = z.object({
   projectNo: z.string().trim().min(3),
   name: z.string().trim().min(3),
+  directCommission: z.coerce.number().min(0).max(100).optional(),
   blocks: z.array(z.string().trim().min(1)).min(1),
 });
 
 const updateProjectSchema = z.object({
   projectNo: z.string().trim().min(3).optional(),
   name: z.string().trim().min(3).optional(),
+  directCommission: z.coerce.number().min(0).max(100).optional().nullable(),
 });
 
 const createBlockSchema = z.object({
@@ -45,7 +48,7 @@ const calculateTotalAmount = (sizeSqYards: number, ratePerSqYard: number, plc: n
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { projectNo, name, blocks } = createProjectSchema.parse(req.body);
+    const { projectNo, name, blocks, directCommission } = createProjectSchema.parse(req.body);
 
     const existingProject = await prisma.project.findUnique({ where: { projectNo } });
     if (existingProject) {
@@ -57,6 +60,7 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
       data: {
         projectNo,
         name,
+        directCommission,
         blocks: {
           create: Array.from(new Set(blocks.map((blockName) => blockName.trim().toUpperCase()))).map((blockName) => ({
             name: blockName,
@@ -65,6 +69,8 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
       },
       include: { blocks: true },
     });
+
+    await invalidateCache('inventory:*');
 
     res.status(201).json(project);
   } catch (error) {
@@ -89,6 +95,8 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
       include: { blocks: true },
     });
 
+    await invalidateCache('inventory:*');
+
     res.json(project);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -112,6 +120,8 @@ export const addBlock = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
+    await invalidateCache('inventory:*');
+
     res.status(201).json(block);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -127,28 +137,66 @@ export const addBlock = async (req: Request, res: Response): Promise<void> => {
 export const getProjects = async (req: Request, res: Response): Promise<void> => {
   try {
     const { include } = req.query;
+    const cacheKey = `inventory:projects:include_${include || 'none'}`;
+
+    const cachedProjects = await getCache(cacheKey);
+    if (cachedProjects) {
+      res.json(cachedProjects);
+      return;
+    }
+
     const includeBlocks = include === 'blocks';
 
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        blocks: includeBlocks ? {
-          orderBy: { name: 'asc' },
+    const options = includeBlocks 
+      ? {
+          take: 200,
+          orderBy: { createdAt: 'desc' as const },
           include: {
-            properties: {
-              orderBy: { propertyNo: 'asc' },
+            blocks: {
+              orderBy: { name: 'asc' as const },
               include: {
-                sales: {
-                  include: {
-                    agent: { select: { name: true, userId: true } },
+                properties: {
+                  orderBy: { propertyNo: 'asc' as const },
+                  select: {
+                    id: true,
+                    propertyNo: true,
+                    type: true,
+                    sizeSqYards: true,
+                    ratePerSqYard: true,
+                    plc: true,
+                    totalAmount: true,
+                    dimension: true,
+                    status: true,
+                    blockId: true,
+                    sales: {
+                      select: {
+                        id: true,
+                        receiptNo: true,
+                        agent: { select: { name: true, userId: true } },
+                      },
+                      take: 1,
+                    },
                   },
                 },
               },
             },
           },
-        } : true,
-      },
-    });
+        }
+      : {
+          take: 200,
+          orderBy: { createdAt: 'desc' as const },
+          select: { 
+            id: true, 
+            name: true, 
+            projectNo: true, 
+            directCommission: true,
+            blocks: { select: { id: true, name: true } }
+          },
+        };
+
+    const projects = await prisma.project.findMany(options as any);
+
+    await setCache(cacheKey, projects, 3600); // Cache for 1 hour
 
     res.json(projects);
   } catch (error) {
@@ -173,6 +221,8 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
         blockId,
       },
     });
+
+    await invalidateCache('inventory:*');
 
     res.status(201).json(property);
   } catch (error) {
@@ -216,6 +266,8 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       },
     });
 
+    await invalidateCache('inventory:*');
+
     res.json(property);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -231,6 +283,16 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 export const getProperties = async (req: Request, res: Response): Promise<void> => {
   try {
     const { status, blockId, projectId } = req.query;
+    
+    // Using a predictable cache key pattern
+    const cacheKey = `inventory:properties:status_${status || 'all'}:block_${blockId || 'all'}:proj_${projectId || 'all'}`;
+    const cachedProps = await getCache(cacheKey);
+    
+    if (cachedProps) {
+      res.json(cachedProps);
+      return;
+    }
+
     const where: Prisma.PropertyWhereInput = {};
 
     if (status) {
@@ -246,17 +308,29 @@ export const getProperties = async (req: Request, res: Response): Promise<void> 
     }
 
     const properties = await prisma.property.findMany({
+      take: 500,
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        block: { include: { project: true } },
+        block: {
+          select: {
+            id: true,
+            name: true,
+            project: { select: { id: true, projectNo: true, name: true } },
+          },
+        },
         sales: {
-          include: {
+          select: {
+            id: true,
+            receiptNo: true,
             agent: { select: { name: true, userId: true } },
           },
+          take: 1,
         },
       },
     });
+
+    await setCache(cacheKey, properties, 1800); // Local cache sets for 30mins
 
     res.json(properties);
   } catch (error) {

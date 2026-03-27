@@ -4,6 +4,7 @@ import { logAudit } from '../../utils/auditLogger.js';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
 import { rebuildCommissionLedger } from '../mlm/mlm.service.js';
+import { getCache, setCache, invalidateCache } from '../../lib/redis.js';
 
 const companySettingsSchema = z.object({
   companyName: z.string().trim().min(2),
@@ -61,7 +62,15 @@ const ensureCommissionSettings = async () => {
 
 export const getCompanySettings = async (_req: Request, res: Response): Promise<void> => {
   try {
+    const cacheKey = 'settings:company';
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
+
     const settings = await ensureCompanySettings();
+    await setCache(cacheKey, settings, 3600); // 1 hour
     res.json(settings);
   } catch (error) {
     console.error('[Settings/GetCompany] Error:', error);
@@ -89,6 +98,7 @@ export const updateCompanySettings = async (req: AuthRequest, res: Response): Pr
       details: updateData,
     });
 
+    await invalidateCache('settings:company');
     res.json({ message: 'Company settings updated successfully', settings });
   } catch (error) {
     if (error instanceof z.ZodError) {

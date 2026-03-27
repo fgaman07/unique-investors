@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../context/AuthContext';
 
 interface Project { id: string; projectNo: string; name: string; blocks: Block[]; }
@@ -6,16 +7,18 @@ interface Block { id: string; name: string; properties: Property[]; }
 interface Property { id: string; propertyNo: string; type: string; sizeSqYards: number; ratePerSqYard: number; totalAmount: number; status: string; dimension?: string; }
 
 const ProjectDetails = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ['projectsList'],
+    queryFn: async () => {
+      const { data } = await api.get('/inventory/projects?include=blocks');
+      return data;
+    },
+  });
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedBlock, setSelectedBlock] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
-
-  useEffect(() => {
-    api.get('/inventory/projects?include=blocks').then(r => setProjects(r.data)).catch(() => {});
-  }, []);
 
   const currentProject = projects.find(p => p.id === selectedProject);
   const blocks = currentProject?.blocks ?? [];

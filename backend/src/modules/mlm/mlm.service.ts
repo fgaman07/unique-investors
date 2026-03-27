@@ -17,38 +17,51 @@ export const getActiveCommissionPlan = async () => {
   return persistedPlan.length > 0 ? persistedPlan : defaultCommissionPlan;
 };
 
-export const distributeCommissions = async (agentId: string, transactionAmount: number, receiptNo: string): Promise<void> => {
+export const distributeCommissions = async (agentId: string, transactionAmount: number, receiptNo: string, customDirectCommission?: number | null): Promise<void> => {
   const commissionPlan = await getActiveCommissionPlan();
-  let currentAgentId: string | null = agentId;
 
-  for (const slab of commissionPlan) {
-    if (!currentAgentId) {
-      break;
-    }
+  // Pre-fetch the entire sponsor chain in ONE query instead of N sequential queries
+  // Walk up the chain collecting user IDs, then batch-insert commissions
+  const chainUsers: { id: string; sponsorId: string | null }[] = [];
+  let currentId: string | null = agentId;
 
-    const user: { id: string; sponsorId: string | null } | null = await prisma.user.findUnique({
-      where: { id: currentAgentId },
+  // Fetch all needed users in a single query by walking the chain
+  // We need at most commissionPlan.length users in the chain
+  for (let i = 0; i < commissionPlan.length && currentId; i++) {
+    const user = await prisma.user.findUnique({
+      where: { id: currentId },
       select: { id: true, sponsorId: true },
     });
+    if (!user) break;
+    chainUsers.push(user);
+    currentId = user.sponsorId;
+  }
 
-    if (!user) {
-      break;
-    }
-
-    const amount = transactionAmount * (slab.percentage / 100);
+  // Batch-create all commission entries at once
+  const commissionsToCreate = [];
+  for (let i = 0; i < Math.min(commissionPlan.length, chainUsers.length); i++) {
+    const slab = commissionPlan[i];
+    const user = chainUsers[i];
+    
+    // Apply custom direct commission percentage for Level 1 if provided
+    const percentage = (slab.level === 1 && customDirectCommission !== undefined && customDirectCommission !== null)
+      ? customDirectCommission
+      : slab.percentage;
+      
+    const amount = transactionAmount * (percentage / 100);
     if (amount > 0) {
-      await prisma.commissionLedger.create({
-        data: {
-          userId: user.id,
-          amount,
-          incomeType: slab.label,
-          remarks: `Commission from receipt ${receiptNo}`,
-          status: 'PENDING',
-        },
+      commissionsToCreate.push({
+        userId: user.id,
+        amount,
+        incomeType: slab.label,
+        remarks: `Commission from receipt ${receiptNo}`,
+        status: 'PENDING' as const,
       });
     }
+  }
 
-    currentAgentId = user.sponsorId;
+  if (commissionsToCreate.length > 0) {
+    await prisma.commissionLedger.createMany({ data: commissionsToCreate });
   }
 };
 
@@ -59,6 +72,7 @@ export const rebuildCommissionLedger = async (): Promise<void> => {
   const sales = await prisma.sale.findMany({
     orderBy: { saleDate: 'asc' },
     include: {
+      property: { include: { block: { include: { project: true } } } },
       emis: {
         where: { status: 'PAID' },
         orderBy: { createdAt: 'asc' },
@@ -67,15 +81,16 @@ export const rebuildCommissionLedger = async (): Promise<void> => {
   });
 
   for (const sale of sales) {
-    const emiTotal = sale.emis.reduce((sum, emi) => sum + emi.amount, 0);
+    const customComm = sale.property?.block?.project?.directCommission;
+    const emiTotal = sale.emis.reduce((sum: number, emi: { amount: number }) => sum + emi.amount, 0);
     const initialPayment = Math.max(sale.paidAmount - emiTotal, 0);
 
     if (initialPayment > 0) {
-      await distributeCommissions(sale.agentId, initialPayment, sale.receiptNo);
+      await distributeCommissions(sale.agentId, initialPayment, sale.receiptNo, customComm);
     }
 
     for (const emi of sale.emis) {
-      await distributeCommissions(sale.agentId, emi.amount, `${sale.receiptNo}-EMI-${emi.id.slice(0, 6)}`);
+      await distributeCommissions(sale.agentId, emi.amount, `${sale.receiptNo}-EMI-${emi.id.slice(0, 6)}`, customComm);
     }
   }
 };

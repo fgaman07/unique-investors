@@ -10,7 +10,8 @@ import { adminOnly, protect } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/company', protect, adminOnly, getCompanySettings);
+// Allow any logged-in user to view company settings (needed for Welcome Letter template)
+router.get('/company', protect, getCompanySettings);
 router.put('/company', protect, adminOnly, updateCompanySettings);
 router.get('/mlm', protect, adminOnly, getCommissionSettings);
 router.put('/mlm', protect, adminOnly, updateCommissionSettings);

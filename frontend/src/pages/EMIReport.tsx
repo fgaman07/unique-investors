@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
@@ -41,33 +42,29 @@ interface SaleOption {
 
 const EMIReport = () => {
   const { targetUserId } = useAuth();
-  const [emis, setEmis] = useState<EmiRecord[]>([]);
-  const [sales, setSales] = useState<SaleOption[]>([]);
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({ saleId: '', amount: '' });
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const query = targetUserId ? `?agentId=${targetUserId}` : '';
-      const [emiResponse, salesResponse] = await Promise.all([
-        api.get<EmiRecord[]>(`/sales/emis${query}`),
-        api.get<SaleOption[]>(`/sales${query}`),
-      ]);
-      setEmis(emiResponse.data);
-      setSales(salesResponse.data);
-    } catch (error) {
-      console.error('Error fetching EMI report', error);
-      setMessage({ type: 'error', text: 'Failed to load EMI data.' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const emiQuery = targetUserId ? `?agentId=${targetUserId}` : '';
 
-  useEffect(() => {
-    loadData();
-  }, [targetUserId]);
+  const { data: emis = [], isLoading: loadingEmis } = useQuery<EmiRecord[]>({
+    queryKey: ['emiReport', targetUserId],
+    queryFn: async () => {
+      const { data } = await api.get<EmiRecord[]>(`/sales/emis${emiQuery}`);
+      return data;
+    },
+  });
+
+  const { data: sales = [], isLoading: loadingSales } = useQuery<SaleOption[]>({
+    queryKey: ['emiSales', targetUserId],
+    queryFn: async () => {
+      const { data } = await api.get<SaleOption[]>(`/sales${emiQuery}`);
+      return data;
+    },
+  });
+
+  const loading = loadingEmis || loadingSales;
 
   const payableSales = useMemo(
     () => sales.filter((sale) => sale.totalAmount > sale.paidAmount),
@@ -83,7 +80,8 @@ const EMIReport = () => {
       });
       setForm({ saleId: '', amount: '' });
       setMessage({ type: 'success', text: 'EMI payment recorded successfully.' });
-      await loadData();
+      await queryClient.invalidateQueries({ queryKey: ['emiReport'] });
+      await queryClient.invalidateQueries({ queryKey: ['emiSales'] });
     } catch (error: any) {
       setMessage({ type: 'error', text: error.response?.data?.message || 'Unable to record EMI payment.' });
     }

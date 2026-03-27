@@ -46,7 +46,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 const storedUser = localStorage.getItem('user');
 const storedToken = localStorage.getItem('token');
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const rawApiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const apiBaseUrl = rawApiUrl.replace(/["']/g, '').trim();
 
 export const api = axios.create({
   baseURL: apiBaseUrl,

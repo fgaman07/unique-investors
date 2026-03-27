@@ -11,6 +11,7 @@ const envSchema = z.object({
   REFRESH_TOKEN_EXPIRY: z.string().default('7d'),
   PORT: z.coerce.number().default(5000),
   CLIENT_URL: z.string().optional(),
+  REDIS_URL: z.string().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

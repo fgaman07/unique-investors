@@ -1,27 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../context/AuthContext';
 import { Users, Building, IndianRupee, Briefcase } from 'lucide-react';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await api.get('/dashboard/admin-stats');
-        setStats(data);
-      } catch (error) {
-        console.error('Error fetching admin stats', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+  const { data: stats, isLoading: loading, error } = useQuery({
+    queryKey: ['adminDashboardStats'],
+    queryFn: async () => {
+      const { data } = await api.get('/dashboard/admin-stats');
+      return data;
+    }
+  });
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading Global Admin Data...</div>;
-  if (!stats) return <div className="p-8 text-center text-red-500">Failed to load admin stats. Please check server connection.</div>;
+  if (error || !stats) return <div className="p-8 text-center text-red-500">Failed to load admin stats. Please check server connection.</div>;
 
   return (
     <div className="p-4 bg-brand-bg space-y-6 min-h-full">

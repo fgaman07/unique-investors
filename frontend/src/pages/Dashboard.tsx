@@ -1,27 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../context/AuthContext';
 import { Users, User, IndianRupee, Activity, FileText } from 'lucide-react';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await api.get('/dashboard/stats');
-        setStats(data);
-      } catch (error) {
-        console.error('Error fetching dashboard stats', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+  const { data: stats, isLoading: loading, error } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: async () => {
+      const { data } = await api.get('/dashboard/stats');
+      return data;
+    }
+  });
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
-  if (!stats) return <div className="p-8 text-center text-red-500">Failed to load data</div>;
+  if (error || !stats) return <div className="p-8 text-center text-red-500">Failed to load data</div>;
 
   return (
     <div className="p-4 bg-brand-bg space-y-6 min-h-full">

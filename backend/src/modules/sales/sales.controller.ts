@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { AuthRequest } from '../../middleware/authMiddleware.js';
 import { prisma } from '../../lib/prisma.js';
 import { distributeCommissions } from '../mlm/mlm.service.js';
+import { addCommissionJob } from '../../lib/queue.js';
+import { getCache, setCache, invalidateCache } from '../../lib/redis.js';
 
 const createSaleSchema = z.object({
   receiptNo: z.string().trim().min(3),
@@ -80,8 +82,13 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     if (paidAmount > 0) {
-      await distributeCommissions(agentId, paidAmount, receiptNo);
+      await addCommissionJob(agentId, paidAmount, receiptNo);
     }
+
+    // Invalidate sales and dashboard caches
+    await invalidateCache('sales:*');
+    await invalidateCache('dashboard:*');
+    await invalidateCache('inventory:*'); // Property status changed to BOOKED
 
     res.status(201).json({ message: 'Sale registered successfully', sale });
   } catch (error) {
@@ -98,6 +105,14 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
 export const getSales = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { from, to, agentId } = req.query;
+    const cacheKey = `sales:list:${req.user!.id}:${agentId || 'all'}:${from || 'start'}:${to || 'end'}`;
+    
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
+
     const where: Prisma.SaleWhereInput = {};
 
     if (req.user!.role !== 'ADMIN') {
@@ -117,6 +132,7 @@ export const getSales = async (req: AuthRequest, res: Response): Promise<void> =
     }
 
     const sales = await prisma.sale.findMany({
+      take: 1000,
       where,
       orderBy: { saleDate: 'desc' },
       include: {
@@ -132,6 +148,7 @@ export const getSales = async (req: AuthRequest, res: Response): Promise<void> =
       },
     });
 
+    await setCache(cacheKey, sales, 300); // 5 mins
     res.json(sales);
   } catch (error) {
     console.error('[Sales/GetSales] Error:', error);
@@ -142,6 +159,14 @@ export const getSales = async (req: AuthRequest, res: Response): Promise<void> =
 export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { agentId } = req.query;
+    const cacheKey = `sales:emis:${req.user!.id}:${agentId || 'all'}`;
+    
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
+
     const where: Prisma.EMIWhereInput = {};
 
     if (req.user!.role !== 'ADMIN') {
@@ -151,6 +176,7 @@ export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> =>
     }
 
     const emis = await prisma.eMI.findMany({
+      take: 1000,
       where,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -174,6 +200,7 @@ export const getEMIs = async (req: AuthRequest, res: Response): Promise<void> =>
       },
     });
 
+    await setCache(cacheKey, emis, 300);
     res.json(emis);
   } catch (error) {
     console.error('[Sales/GetEmis] Error:', error);
@@ -239,7 +266,11 @@ export const payEMI = async (req: AuthRequest, res: Response): Promise<void> => 
       return createdEmi;
     });
 
-    await distributeCommissions(sale.agentId, amount, `${sale.receiptNo}-EMI`);
+    await addCommissionJob(sale.agentId, amount, `${sale.receiptNo}-EMI`);
+
+    // Invalidate caches
+    await invalidateCache('sales:*');
+    await invalidateCache('dashboard:*');
 
     res.status(201).json({ message: 'EMI processed successfully', emi });
   } catch (error) {

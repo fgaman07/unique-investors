@@ -1,24 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api, useAuth } from '../../context/AuthContext';
 
 export const AdminUserSelector = () => {
   const { user, targetUserId, setTargetUserId } = useAuth();
-  const [users, setUsers] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (user?.role !== 'ADMIN') return;
-    const fetchUsers = async () => {
-      try {
-        const { data } = await api.get('/auth/users?limit=1000');
-        // Handle both paginated { users: [...] } and flat array responses
-        const userData = Array.isArray(data) ? data : data.users;
-        setUsers(userData || []);
-      } catch (err) {
-        console.error('Failed to load users for selector', err);
-      }
-    };
-    fetchUsers();
-  }, [user]);
+  const { data: users = [] } = useQuery({
+    queryKey: ['adminUsersList'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/users?limit=1000');
+      return Array.isArray(data) ? data : (data.users || []);
+    },
+    enabled: user?.role === 'ADMIN',
+    staleTime: 600000, // 10 mins cache for administrative user list
+  });
 
   if (user?.role !== 'ADMIN') return null;
 
@@ -42,7 +36,7 @@ export const AdminUserSelector = () => {
         >
           <option value="" className="bg-slate-900">-- SYSTEM VIEW (ADMIN) --</option>
           <optgroup label="Select User to Impersonate" className="bg-slate-900 text-slate-400 font-normal">
-            {users.map(u => (
+            {users.map((u: any) => (
               <option key={u.id} value={u.id} className="bg-slate-800 text-white font-bold">
                 {u.name} ({u.userId})
               </option>

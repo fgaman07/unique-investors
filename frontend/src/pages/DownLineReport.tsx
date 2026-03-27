@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
@@ -14,31 +14,21 @@ const COLUMNS = [
 
 const DownLineReport = () => {
   const { targetUserId } = useAuth();
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
-        const response = await api.get(`/mlm/downline${query}`);
-        // Format the table data
-        const formatted = response.data.downline.map((item: any) => ({
-          ...item,
-          level: `Level ${item.level}`,
-          joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB')
-        })).sort((a: any, b: any) => a.level.localeCompare(b.level)); // Sort by level
-        
-        setData(formatted);
-      } catch (error) {
-        console.error('Error fetching downline report', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [targetUserId]);
+  const { data: downline = [], isLoading: loading } = useQuery({
+    queryKey: ['downline', targetUserId || 'self'],
+    queryFn: async () => {
+      const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+      const response = await api.get(`/mlm/downline${query}`);
+      return response.data.downline.map((item: any) => ({
+        ...item,
+        level: `Level ${item.level}`,
+        joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB')
+      })).sort((a: any, b: any) => a.level.localeCompare(b.level));
+    }
+  });
+
+  const data = downline;
 
   return (
     <div className="w-full h-full pb-10">

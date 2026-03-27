@@ -1,7 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuth } from './context/AuthContext';
 import GlobalLayout from './components/layout/GlobalLayout';
 import Login from './pages/Login';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes — data stays "fresh" for 5 mins, no background refetch
+      gcTime: 10 * 60 * 1000, // 10 minutes — cached data lives for 10 mins before garbage collection
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // User Pages
 import Dashboard from './pages/Dashboard';
@@ -44,41 +56,43 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode,
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        
-        <Route element={<GlobalLayout />}>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
           
-          {/* USER & AGENT ROUTES */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/welcome-letter" element={<ProtectedRoute><WelcomeLetter /></ProtectedRoute>} />
-          <Route path="/user-summary" element={<ProtectedRoute><UserSummary /></ProtectedRoute>} />
-          <Route path="/sale-report" element={<ProtectedRoute><SaleReport /></ProtectedRoute>} />
-          <Route path="/down-line-report" element={<ProtectedRoute><DownLineReport /></ProtectedRoute>} />
-          <Route path="/direct-member-report" element={<ProtectedRoute><DirectMemberReport /></ProtectedRoute>} />
-          <Route path="/all-leg-report" element={<ProtectedRoute><AllLegReport /></ProtectedRoute>} />
-          <Route path="/incentive-report" element={<ProtectedRoute><IncentiveReport /></ProtectedRoute>} />
-          <Route path="/promotional-incentive" element={<ProtectedRoute><PromotionalIncentive /></ProtectedRoute>} />
-          <Route path="/emi-report" element={<ProtectedRoute><EMIReport /></ProtectedRoute>} />
-          <Route path="/user-tree" element={<ProtectedRoute><UserTree /></ProtectedRoute>} />
-          <Route path="/post-short-by" element={<ProtectedRoute><PostShortBy /></ProtectedRoute>} />
-          <Route path="/release-payment" element={<ProtectedRoute><ReleasePayment /></ProtectedRoute>} />
-          <Route path="/project-details" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
-          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+          <Route element={<GlobalLayout />}>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            
+            {/* USER & AGENT ROUTES */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/welcome-letter" element={<ProtectedRoute><WelcomeLetter /></ProtectedRoute>} />
+            <Route path="/user-summary" element={<ProtectedRoute><UserSummary /></ProtectedRoute>} />
+            <Route path="/sale-report" element={<ProtectedRoute><SaleReport /></ProtectedRoute>} />
+            <Route path="/down-line-report" element={<ProtectedRoute><DownLineReport /></ProtectedRoute>} />
+            <Route path="/direct-member-report" element={<ProtectedRoute><DirectMemberReport /></ProtectedRoute>} />
+            <Route path="/all-leg-report" element={<ProtectedRoute><AllLegReport /></ProtectedRoute>} />
+            <Route path="/incentive-report" element={<ProtectedRoute><IncentiveReport /></ProtectedRoute>} />
+            <Route path="/promotional-incentive" element={<ProtectedRoute><PromotionalIncentive /></ProtectedRoute>} />
+            <Route path="/emi-report" element={<ProtectedRoute><EMIReport /></ProtectedRoute>} />
+            <Route path="/user-tree" element={<ProtectedRoute><UserTree /></ProtectedRoute>} />
+            <Route path="/post-short-by" element={<ProtectedRoute><PostShortBy /></ProtectedRoute>} />
+            <Route path="/release-payment" element={<ProtectedRoute><ReleasePayment /></ProtectedRoute>} />
+            <Route path="/project-details" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
+            <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
 
-          {/* ADMIN ROUTES */}
-          <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/users" element={<ProtectedRoute requiredRole="ADMIN"><AdminUsers /></ProtectedRoute>} />
-          <Route path="/admin/projects" element={<ProtectedRoute requiredRole="ADMIN"><AdminProjects /></ProtectedRoute>} />
-          <Route path="/admin/payments" element={<ProtectedRoute requiredRole="ADMIN"><AdminPayments /></ProtectedRoute>} />
-          
-          {/* Common Settings accessible by all or Admin only depending on logic */}
-          <Route path="/setting" element={<ProtectedRoute requiredRole="ADMIN"><Settings /></ProtectedRoute>} />
-        </Route>
-      </Routes>
-    </Router>
+            {/* ADMIN ROUTES */}
+            <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRole="ADMIN"><AdminUsers /></ProtectedRoute>} />
+            <Route path="/admin/projects" element={<ProtectedRoute requiredRole="ADMIN"><AdminProjects /></ProtectedRoute>} />
+            <Route path="/admin/payments" element={<ProtectedRoute requiredRole="ADMIN"><AdminPayments /></ProtectedRoute>} />
+            
+            {/* Common Settings accessible by all or Admin only depending on logic */}
+            <Route path="/setting" element={<ProtectedRoute requiredRole="ADMIN"><Settings /></ProtectedRoute>} />
+          </Route>
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

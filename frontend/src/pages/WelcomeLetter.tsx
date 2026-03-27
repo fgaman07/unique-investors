@@ -1,25 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api, useAuth } from '../context/AuthContext';
 import logo from '../assets/images/logo.png';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const WelcomeLetter = () => {
     const { user, targetUserId } = useAuth();
-    const [targetData, setTargetData] = useState<any>(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            if (targetUserId) {
-                const { data } = await api.get(`/auth/me?targetUserId=${targetUserId}`);
-                setTargetData(data);
-            } else {
-                setTargetData(user);
-            }
-        };
-        fetchUser();
-    }, [user, targetUserId]);
+    const { data: targetData, isLoading: loadingTarget } = useQuery({
+        queryKey: ['welcomeLetterTarget', targetUserId || user?.id],
+        queryFn: async () => {
+            // Always fetch full profile from API — the AuthContext `user` object
+            // only contains {id, name, role, status} and is missing joiningDate,
+            // sponsor, mobile, address, which are needed for the letter.
+            const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+            const { data } = await api.get(`/auth/me${query}`);
+            return data;
+        },
+        enabled: !!user
+    });
 
-    if (!targetData) {
+    const { data: companyData, isLoading: loadingCompany } = useQuery({
+        queryKey: ['companySettings'],
+        queryFn: async () => {
+            const { data } = await api.get('/settings/company');
+            return data;
+        }
+    });
+
+    const loading = loadingTarget || loadingCompany;
+
+    if (loading || !targetData || !companyData) {
         return <div className="p-20 text-center font-bold text-blue-900">Loading Letter Details...</div>;
     }
 
@@ -89,8 +99,8 @@ const WelcomeLetter = () => {
                         </div>
 
                         <div className="flex flex-col">
-                            <h1 className="text-[34px] font-serif font-black text-[#2E5B9A] leading-tight tracking-tight">
-                                UNIQUE INVESTORS PVT. LTD.
+                            <h1 className="text-[34px] font-serif font-black text-[#2E5B9A] leading-tight tracking-tight uppercase">
+                                {companyData?.companyName || 'UNIQUE INVESTORS PVT. LTD.'}
                             </h1>
                             <p className="text-[#F37021] italic text-[20px] font-serif font-bold tracking-[0.15em] leading-normal uppercase">
                                 WHERE DREAMS COME TRUE
@@ -126,8 +136,7 @@ const WelcomeLetter = () => {
                     <div className="relative py-12 mb-8 min-h-[220px] border-y border-gray-100 flex items-center">
                         {/* High-Fidelity Watermark - Using CSS text for simplicity if icons aren't reliable */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center opacity-[0.06] pointer-events-none select-none z-0 text-center watermark-print">
-                            <span className="text-[120px] font-black leading-none select-none">UNIQUE INVESTORS</span>
-                            <h2 className="text-2xl font-black mt-1">PVT. LTD.</h2>
+                            <span className="text-[80px] font-black leading-none select-none uppercase">{companyData?.companyName || 'UNIQUE INVESTORS PVT. LTD.'}</span>
                         </div>
 
                         {/* Details Grid */}
@@ -163,23 +172,23 @@ const WelcomeLetter = () => {
 
                     {/* Closing Section */}
                     <div className="text-[13px] leading-[1.5] mb-8 text-black font-medium text-justify">
-                        Assuring you of the best services always and wishing you continued success in your journey with Unique Investors Pvt. Ltd.. We look forward to a long-term association and prosperous future, together.
+                        Assuring you of the best services always and wishing you continued success in your journey with {companyData?.companyName || 'Unique Investors Pvt. Ltd.'}. We look forward to a long-term association and prosperous future, together.
                     </div>
 
                     {/* Best Regards */}
                     <div className="mb-12">
                         <p className="text-[14px] font-bold text-gray-900">Best Regards ,</p>
-                        <p className="text-[14px] font-bold text-gray-900 mt-4 tracking-wide uppercase">Unique Investors Pvt. Ltd.</p>
+                        <p className="text-[14px] font-bold text-gray-900 mt-4 tracking-wide uppercase">{companyData?.companyName || 'Unique Investors Pvt. Ltd.'}</p>
                     </div>
 
                     {/* Office and Legal Footer */}
                     <div className="text-center font-serif text-[11px] space-y-0.5 text-gray-800 border-t border-gray-100 pt-4">
-                        <p className="font-bold">Head Office : 12th Floor, KLJ Tower North</p>
-                        <p>Netaji Subhash Place, Pitampura, New Delhi - 110034</p>
-                        <p className="font-bold">Tel. No. : 011-41444649</p>
+                        <p className="font-bold">Registered Office</p>
+                        <p className="whitespace-pre-wrap">{companyData?.address || '12th Floor, KLJ Tower North\nNetaji Subhash Place, Pitampura, New Delhi - 110034'}</p>
+                        <p className="font-bold mt-1">Tel. No. : {companyData?.contactNumber || '011-41444649'}</p>
                         <div className="flex justify-center gap-6 mt-2 font-bold text-[#2E5B9A]">
-                            <p>Website: www.uniqueinvestors.com</p>
-                            <p>Email: Info@uniqueinvestors.com</p>
+                            <p>Email: {companyData?.supportEmail || 'Info@uniqueinvestors.com'}</p>
+                            {companyData?.registrationNo && <p>Reg No: {companyData.registrationNo}</p>}
                         </div>
 
                         {/* Legal Block */}

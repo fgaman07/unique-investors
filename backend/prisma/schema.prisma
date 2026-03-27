@@ -35,15 +35,18 @@ model User {
   downline      User[]             @relation("SponsorNetwork")
 
   @@index([sponsorId])
+  @@index([createdAt])
+  @@index([role])
 }
 
 model Project {
-  id        String   @id @default(uuid())
-  projectNo String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  blocks    Block[]
+  id               String   @id @default(uuid())
+  projectNo        String   @unique
+  name             String
+  directCommission Float?   // Optional custom commission % for direct sales (Level 1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  blocks           Block[]
 }
 
 model Block {
@@ -75,6 +78,7 @@ model Property {
   sales         Sale[]
 
   @@index([blockId])
+  @@index([status])
 }
 
 model Sale {
@@ -93,6 +97,7 @@ model Sale {
 
   @@index([agentId])
   @@index([propertyId])
+  @@index([saleDate])
 }
 
 model EMI {
@@ -121,6 +126,8 @@ model CommissionLedger {
   user        User         @relation(fields: [userId], references: [id])
 
   @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model CompanySettings {

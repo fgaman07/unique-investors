@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
@@ -16,29 +16,22 @@ const COLUMNS = [
 
 const DirectMemberReport = () => {
   const { targetUserId } = useAuth();
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
-        const response = await api.get(`/mlm/direct-members-with-volume${query}`);
-        const formatted = response.data.members.map((item: any, idx: number) => ({
-          ...item,
-          sno: idx + 1,
-          businessVolumeDisplay: `₹ ${item.businessVolume.toLocaleString('en-IN')}`,
-          joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB'),
-        }));
-        setData(formatted);
-      } catch (error) {
-        console.error('Error fetching direct members', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [targetUserId]);
+  const { data: members = [], isLoading: loading } = useQuery({
+    queryKey: ['directMembersWithVolume', targetUserId || 'self'],
+    queryFn: async () => {
+      const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+      const response = await api.get(`/mlm/direct-members-with-volume${query}`);
+      return response.data.members.map((item: any, idx: number) => ({
+        ...item,
+        sno: idx + 1,
+        businessVolumeDisplay: `₹ ${item.businessVolume.toLocaleString('en-IN')}`,
+        joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB'),
+      }));
+    }
+  });
+
+  const data = members;
 
   return (
     <div className="w-full h-full pb-10 space-y-2">

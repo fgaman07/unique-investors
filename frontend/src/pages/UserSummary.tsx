@@ -1,37 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, useAuth } from '../context/AuthContext';
 import { User, Phone, Mail, Award, Calendar, CreditCard, MapPin, Landmark, TrendingUp, TrendingDown, Wallet, AlertCircle, Edit, Save, X } from 'lucide-react';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const UserSummary = () => {
   const { targetUserId, user: authUser } = useAuth();
-  const [user, setUser] = useState<any>(null);
-  const [summary, setSummary] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
-      const [profileRes, summaryRes] = await Promise.all([
-        api.get(`/auth/me${query}`),
-        api.get(`/mlm/summary${query}`),
-      ]);
-      setUser(profileRes.data);
-      setSummary(summaryRes.data);
-    } catch (error) {
-      console.error('Error fetching user summary', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
 
-  useEffect(() => {
-    fetchData();
-  }, [targetUserId]);
+  const { data: user, isLoading: loadingUser } = useQuery({
+    queryKey: ['userProfile', targetUserId || authUser?.id],
+    queryFn: async () => {
+      const { data } = await api.get(`/auth/me${query}`);
+      return data;
+    },
+    enabled: !!authUser,
+  });
+
+  const { data: summary, isLoading: loadingSummary } = useQuery({
+    queryKey: ['userSummary', targetUserId || authUser?.id],
+    queryFn: async () => {
+      const { data } = await api.get(`/mlm/summary${query}`);
+      return data;
+    },
+    enabled: !!authUser,
+  });
+
+  const loading = loadingUser || loadingSummary;
 
   const handleEditClick = () => {
     setEditForm({
@@ -53,7 +53,8 @@ const UserSummary = () => {
       const payload = { ...editForm, tdsPercentage: Number(editForm.tdsPercentage) };
       await api.put(`/auth/users/${user.id}`, payload);
       setEditing(false);
-      await fetchData(); 
+      await queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      await queryClient.invalidateQueries({ queryKey: ['userSummary'] });
     } catch (error) {
       console.error('Failed to update user', error);
       alert('Failed to update user');

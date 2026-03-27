@@ -9,6 +9,7 @@ import { env } from '../../config/env.js';
 import jwt from 'jsonwebtoken';
 import { logAudit } from '../../utils/auditLogger.js';
 import { logger } from '../../utils/logger.js';
+import { getCache, setCache, invalidateCache } from '../../lib/redis.js';
 
 const baseUserSchema = z.object({
   name: z.string().trim().min(2),
@@ -270,6 +271,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const targetUserId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
+    const cacheKey = `user:profile:${targetUserId}`;
+
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: targetUserId },
       select: userSelect,
@@ -280,6 +289,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    await setCache(cacheKey, user, 600); // 10 mins
     res.json(user);
   } catch (error) {
     console.error('[Auth/Profile] Error:', error);
@@ -370,6 +380,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
       select: userSelect,
     });
 
+    await invalidateCache(`user:profile:${id}`);
     res.json({ message: 'User updated successfully', user });
   } catch (error) {
     if (error instanceof z.ZodError) {

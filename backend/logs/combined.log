@@ -18,3 +18,181 @@
 {"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 12:17:55"}
 {"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 13:43:31"}
 {"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 13:43:31"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 15:51:02"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 16:00:25"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 16:02:27"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 16:08:36"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 16:24:23"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 16:31:37"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 16:35:29"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 16:35:29"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 17:03:15"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 17:20:04"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 17:20:04"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 17:20:10"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 17:22:50"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 17:22:50"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 17:32:20"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 17:58:09"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 18:44:15"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-26 19:22:16"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-26 19:22:16"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-26 19:25:23"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 09:50:28"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 09:58:55"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 09:58:55"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 09:59:11"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 10:04:53"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 10:04:53"}
+{"level":"warn","message":"[Redis] No REDIS_URL provided in environment. Application will run WITHOUT caching layer (All requests will hit PostgreSQL).","timestamp":"2026-03-27 10:05:54"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:05:54"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 10:10:50"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 10:10:50"}
+{"level":"warn","message":"[Redis] No REDIS_URL provided in environment. Application will run WITHOUT caching layer (All requests will hit PostgreSQL).","timestamp":"2026-03-27 10:11:06"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:11:06"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:11:06"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:21:19"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:21:19"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:21:19"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 10:22:25"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 10:22:25"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:22:32"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:22:32"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:22:32"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 10:27:27"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 10:27:27"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:27:32"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:27:32"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:27:32"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 10:37:15"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 10:37:15"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:37:20"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:37:20"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:37:20"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:37:20"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:37:20"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:37:27"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:37:27"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:37:29"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:38:58"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:38:58"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:38:58"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:38:58"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:38:58"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:39:04"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:39:04"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:39:07"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:39:52"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:39:52"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:39:52"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:39:52"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:39:52"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:39:59"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:39:59"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:40:01"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:41:21"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:41:21"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:41:21"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:41:21"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:41:21"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:41:27"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:41:27"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:41:30"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:43:09"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:43:09"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:43:09"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:43:09"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:43:09"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:43:15"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:43:15"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:43:18"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 10:49:49"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 10:49:49"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 10:49:49"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 10:49:49"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 10:49:49"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 10:49:56"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 10:49:56"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 10:49:58"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 11:54:12"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 11:54:12"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 11:54:12"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 11:54:12"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 11:54:12"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 11:54:25"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 11:54:25"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 11:54:29"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:07:51"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:07:51"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:09:59"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:09:59"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:09:59"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:09:59"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:09:59"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:10:11"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:10:11"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:10:15"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:25:20"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:25:20"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:25:25"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:25:25"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:25:25"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:25:25"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:25:25"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:25:39"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:25:39"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:25:44"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:25:53"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:25:53"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:28:34"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:28:34"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:28:34"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:28:34"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:28:34"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:28:48"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:28:48"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:28:52"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:37:55"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:37:56"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:37:56"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:37:56"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:37:56"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:38:09"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:38:09"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:38:13"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:39:19"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:39:19"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:39:19"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:39:19"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:39:19"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:39:32"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:39:32"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:39:36"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:40:31"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:40:31"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:40:31"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:40:31"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:40:31"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:40:43"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:40:43"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:40:47"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:50:14"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:50:14"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:50:14"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:50:14"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:50:14"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:50:28"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:50:28"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:50:32"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:54:21"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:54:21"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:54:26"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:54:26"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:54:26"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:54:26"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:54:26"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:54:39"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:54:39"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:54:44"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:58:47"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:58:47"}

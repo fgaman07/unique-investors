@@ -2,9 +2,12 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import { env } from './config/env.js';
 import { prisma } from './lib/prisma.js';
 import { logger } from './utils/logger.js';
+import { initializeMlmWorker } from './workers/mlmWorker.js';
+import { preWarmCaches } from './utils/cacheWarmer.js';
 
 import authRoutes from './modules/auth/auth.routes.js';
 import inventoryRoutes from './modules/inventory/inventory.routes.js';
@@ -22,7 +25,7 @@ import rateLimit from 'express-rate-limit';
 // Global API Rate Limiting (Standard)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 2000, // Limit each IP to 2000 requests per windowMs
+  max: 10000, // Higher limit for development and busy dashboard sessions
   message: { message: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -40,9 +43,10 @@ const authLimiter = rateLimit({
 // Security & Parsing Middleware
 app.use(helmet({ contentSecurityPolicy: false })); // CSP disabled for API-only server
 app.use(cors({
-  origin: allowedOrigins && allowedOrigins.length > 0 ? allowedOrigins : true,
+  origin: true, // Always reflect request origin instead of wildcard array, since credentials: true forbids '*'
   credentials: true,
 }));
+app.use(compression());
 app.use(globalLimiter);
 app.use('/api/auth', authLimiter); // Applies stricter limits specifically to auth routes
 app.use(cookieParser());
@@ -90,8 +94,11 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // Start Server
-const server = app.listen(PORT, () => {
+initializeMlmWorker();
+const server = app.listen(PORT, async () => {
   logger.info(`[Server] Unique Investors API running on http://localhost:${PORT}`);
+  // Pre-load expensive DB queries into memory instantly
+  preWarmCaches().catch(err => logger.error('[CacheWarmer] init failed', err));
 });
 
 // Graceful Shutdown

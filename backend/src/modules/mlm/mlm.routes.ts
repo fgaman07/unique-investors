@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCommissions, getDownline, getDirectMembers, getTree, getAllCommissions, releaseCommission, getUserSummary, getDirectMembersWithVolume, getAllLegReport } from './mlm.controller.js';
+import { getCommissions, getDownline, getDirectMembers, getTree, getAllCommissions, releaseCommission, getUserSummary, getDirectMembersWithVolume, getAllLegReport, createCustomCommission } from './mlm.controller.js';
 import { protect, adminOnly } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -15,6 +15,7 @@ router.get('/tree', protect, getTree);
 
 // Admin routes
 router.get('/all-commissions', protect, adminOnly, getAllCommissions);
+router.post('/commissions/custom', protect, adminOnly, createCustomCommission);
 router.put('/commissions/:id/release', protect, adminOnly, releaseCommission);
 
 export default router;

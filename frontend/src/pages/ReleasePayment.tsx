@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 
@@ -13,37 +13,26 @@ const COLUMNS = [
 ];
 
 const ReleasePayment = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Agent sees their own pending commissions, Admin sees all pending
-        const endpoint = isAdmin ? '/mlm/all-commissions?status=PENDING' : '/mlm/commissions?status=PENDING';
-        const response = await api.get(endpoint);
-        
-        const formatted = response.data.commissions.map((item: any) => ({
-          ...item,
-          agentCode: item.user?.userId || user?.userId || '-',
-          name: item.user?.name || user?.name || '-',
-          amount: parseFloat(item.amount).toLocaleString('en-IN'),
-          paymentMode: item.paymentMode || 'NEFT (Default)',
-          phase: 'Awaiting Admin Approval',
-          id: item.id.substring(0, 8).toUpperCase()
-        }));
-        
-        setData(formatted);
-      } catch (error) {
-        console.error('Error fetching pending payments', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [isAdmin, user]);
+  const { data = [], isLoading: loading } = useQuery({
+    queryKey: ['releasePayment', isAdmin],
+    queryFn: async () => {
+      const endpoint = isAdmin ? '/mlm/all-commissions?status=PENDING' : '/mlm/commissions?status=PENDING';
+      const response = await api.get(endpoint);
+      return response.data.commissions.map((item: any) => ({
+        ...item,
+        agentCode: item.user?.userId || user?.userId || '-',
+        name: item.user?.name || user?.name || '-',
+        amount: parseFloat(item.amount).toLocaleString('en-IN'),
+        paymentMode: item.paymentMode || 'NEFT (Default)',
+        phase: 'Awaiting Admin Approval',
+        id: item.id.substring(0, 8).toUpperCase()
+      }));
+    },
+    enabled: !!user,
+  });
 
   return (
     <div className="w-full h-full pb-10">

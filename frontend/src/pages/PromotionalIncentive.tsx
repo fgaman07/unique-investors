@@ -1,38 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const PromotionalIncentive = () => {
   const { targetUserId } = useAuth();
-  const [data, setData] = useState<any[]>([]);
-  const [totals, setTotals] = useState({ pending: 0, released: 0 });
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
-        const response = await api.get(`/mlm/commissions${query}`);
-        const promotional = response.data.commissions.filter((c: any) => c.incomeType === 'Promotional');
-        setData(
-          promotional.map((item: any) => ({
-            ...item,
-            date: new Date(item.createdAt).toLocaleDateString('en-GB'),
-            amountDisplay: `₹ ${parseFloat(item.amount).toLocaleString('en-IN')}`,
-          }))
-        );
-        setTotals({
-          pending: promotional.filter((c: any) => c.status === 'PENDING').reduce((s: number, c: any) => s + c.amount, 0),
-          released: promotional.filter((c: any) => c.status === 'RELEASED').reduce((s: number, c: any) => s + c.amount, 0),
-        });
-      } catch (error) {
-        console.error('Error fetching promotional incentive', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [targetUserId]);
+  const { data: rawData = [], isLoading: loading } = useQuery({
+    queryKey: ['promotionalIncentive', targetUserId],
+    queryFn: async () => {
+      const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+      const response = await api.get(`/mlm/commissions${query}`);
+      const promotional = response.data.commissions.filter((c: any) => c.incomeType === 'Promotional');
+      return promotional.map((item: any) => ({
+        ...item,
+        date: new Date(item.createdAt).toLocaleDateString('en-GB'),
+        amountDisplay: `₹ ${parseFloat(item.amount).toLocaleString('en-IN')}`,
+      }));
+    },
+  });
+
+  const totals = useMemo(() => ({
+    pending: rawData.filter((c: any) => c.status === 'PENDING').reduce((s: number, c: any) => s + c.amount, 0),
+    released: rawData.filter((c: any) => c.status === 'RELEASED').reduce((s: number, c: any) => s + c.amount, 0),
+  }), [rawData]);
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -74,7 +65,7 @@ const PromotionalIncentive = () => {
             <tbody>
               {loading ? (
                 <tr><td colSpan={6} className="p-10 text-center text-gray-500 italic font-bold">Loading Promotional Incentive Records...</td></tr>
-              ) : data.length > 0 ? data.map((row, idx) => (
+              ) : rawData.length > 0 ? rawData.map((row: any, idx: number) => (
                 <tr key={idx} className="hover:bg-gray-50 border-b border-gray-100 text-center">
                   <td className="p-2 border-r border-gray-200">{row.date}</td>
                   <td className="p-2 border-r border-gray-200 font-medium text-blue-700">{row.incomeType}</td>

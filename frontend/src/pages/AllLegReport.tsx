@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
@@ -15,45 +16,34 @@ const COLUMNS = [
 
 const AllLegReport = () => {
   const { targetUserId } = useAuth();
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useState({ prom: '', from: '', to: '' });
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
+  const { data: rawDownline = [], isLoading: loading } = useQuery({
+    queryKey: ['allLegReport', targetUserId],
+    queryFn: async () => {
       const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
       const response = await api.get(`/mlm/downline${query}`);
-      let filtered = response.data.downline;
+      return response.data.downline || [];
+    },
+  });
 
-      // Filter by date range if provided
-      if (searchParams.from) {
-        filtered = filtered.filter((u: any) => new Date(u.joiningDate) >= new Date(searchParams.from));
-      }
-      if (searchParams.to) {
-        filtered = filtered.filter((u: any) => new Date(u.joiningDate) <= new Date(searchParams.to));
-      }
-
-      const formatted = filtered
-        .map((item: any) => ({
-          ...item,
-          levelLabel: `Leg ${item.level}`,
-          sponsorIdDisplay: item.sponsorId || 'Direct',
-          joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB'),
-        }))
-        .sort((a: any, b: any) => a.levelLabel.localeCompare(b.levelLabel));
-
-      setData(formatted);
-    } catch (error) {
-      console.error('Error fetching all leg report', error);
-    } finally {
-      setLoading(false);
+  const data = useMemo(() => {
+    let filtered = rawDownline;
+    if (searchParams.from) {
+      filtered = filtered.filter((u: any) => new Date(u.joiningDate) >= new Date(searchParams.from));
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [targetUserId]);
+    if (searchParams.to) {
+      filtered = filtered.filter((u: any) => new Date(u.joiningDate) <= new Date(searchParams.to));
+    }
+    return filtered
+      .map((item: any) => ({
+        ...item,
+        levelLabel: `Leg ${item.level}`,
+        sponsorIdDisplay: item.sponsorId || 'Direct',
+        joiningDate: new Date(item.joiningDate).toLocaleDateString('en-GB'),
+      }))
+      .sort((a: any, b: any) => a.levelLabel.localeCompare(b.levelLabel));
+  }, [rawDownline, searchParams]);
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -100,7 +90,7 @@ const AllLegReport = () => {
         {/* Search Button */}
         <div className="bg-[#B2EBF2] p-1.5 flex justify-center border-b border-gray-200">
           <button
-            onClick={fetchData}
+            onClick={() => setSearchParams(p => ({ ...p }))}
             className="bg-white border border-gray-400 hover:bg-gray-50 text-blue-900 text-[12px] px-8 py-0.5 font-bold shadow-sm transition-colors uppercase"
           >
             Search

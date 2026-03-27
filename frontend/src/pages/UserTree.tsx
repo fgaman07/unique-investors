@@ -1,27 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api, useAuth } from '../context/AuthContext';
 import { Users, User } from 'lucide-react';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
 
 const UserTree = () => {
   const { targetUserId } = useAuth();
-  const [treeData, setTreeData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTree = async () => {
-      try {
-        const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
-        const { data } = await api.get(`/mlm/tree${query}`);
-        setTreeData(data);
-      } catch (error) {
-        console.error('Error fetching MLM tree', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTree();
-  }, [targetUserId]);
+  const { data: treeData, isLoading: loading, error } = useQuery({
+    queryKey: ['mlmTree', targetUserId || 'self'],
+    queryFn: async () => {
+      const query = targetUserId ? `?targetUserId=${targetUserId}` : '';
+      const { data } = await api.get(`/mlm/tree${query}`);
+      return data;
+    }
+  });
 
   const renderNode = (node: any, level: number = 0) => {
     if (!node) return null;
@@ -76,7 +68,7 @@ const UserTree = () => {
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Generating Neural Network...</div>;
-  if (!treeData) return <div className="p-8 text-center text-red-500">Failed to load tree</div>;
+  if (error || !treeData) return <div className="p-8 text-center text-red-500">Failed to load tree</div>;
 
   return (
     <div className="p-4 h-[85vh] flex flex-col">

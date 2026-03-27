@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LegacyTable from '../components/common/LegacyTable';
 import { api, useAuth } from '../context/AuthContext';
 import { AdminUserSelector } from '../components/common/AdminUserSelector';
@@ -57,57 +58,66 @@ const emptySaleForm = {
 
 const SaleReport = () => {
   const { user, targetUserId } = useAuth();
+  const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN';
-  const [sales, setSales] = useState<SaleRecord[]>([]);
-  const [agents, setAgents] = useState<AgentOption[]>([]);
-  const [properties, setProperties] = useState<PropertyOption[]>([]);
+  
   const [saleForm, setSaleForm] = useState(emptySaleForm);
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
+  // Queries
+  const { data: sales = [], isLoading: salesLoading } = useQuery({
+    queryKey: ['sales', targetUserId || 'all'],
+    queryFn: async () => {
       const query = targetUserId ? `?agentId=${targetUserId}` : '';
-      const salesResponse = await api.get<SaleRecord[]>(`/sales${query}`);
-      setSales(salesResponse.data);
-
-      if (isAdmin) {
-        const [usersResponse, propertiesResponse] = await Promise.all([
-          api.get('/auth/users?limit=1000'),
-          api.get<PropertyOption[]>('/inventory/properties?status=PENDING'),
-        ]);
-        // Handle paginated response
-        const usersData = Array.isArray(usersResponse.data) ? usersResponse.data : usersResponse.data.users;
-        setAgents((usersData || []).filter((record: AgentOption) => record.role !== 'ADMIN'));
-        setProperties(propertiesResponse.data);
-      }
-    } catch (error) {
-      console.error('Error fetching sales', error);
-      setMessage('Failed to load sales report.');
-    } finally {
-      setLoading(false);
+      const response = await api.get<SaleRecord[]>(`/sales${query}`);
+      return response.data;
     }
-  };
+  });
 
-  useEffect(() => {
-    loadData();
-  }, [isAdmin, targetUserId]);
+  const { data: agents = [] } = useQuery({
+    queryKey: ['agentsDropdown'],
+    queryFn: async () => {
+      const res = await api.get('/auth/users?limit=1000');
+      const data = Array.isArray(res.data) ? res.data : res.data.users;
+      return (data || []).filter((record: AgentOption) => record.role !== 'ADMIN');
+    },
+    enabled: isAdmin
+  });
 
-  const handleCreateSale = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      await api.post('/sales', {
-        ...saleForm,
-        paidAmount: Number(saleForm.paidAmount),
-        saleDate: saleForm.saleDate || undefined,
-      });
-      setSaleForm(emptySaleForm);
+  const { data: properties = [] } = useQuery({
+    queryKey: ['propertiesPending'],
+    queryFn: async () => {
+      const res = await api.get<PropertyOption[]>('/inventory/properties?status=PENDING');
+      return res.data;
+    },
+    enabled: isAdmin
+  });
+
+  // Mutation
+  const createSaleMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await api.post('/sales', payload);
+      return res.data;
+    },
+    onSuccess: () => {
       setMessage('Sale created successfully.');
-      await loadData();
-    } catch (error: any) {
+      setSaleForm(emptySaleForm);
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['propertiesPending'] });
+      queryClient.invalidateQueries({ queryKey: ['adminDashboardStats'] });
+    },
+    onError: (error: any) => {
       setMessage(error.response?.data?.message || 'Unable to create sale.');
     }
+  });
+
+  const handleCreateSale = (event: React.FormEvent) => {
+    event.preventDefault();
+    createSaleMutation.mutate({
+      ...saleForm,
+      paidAmount: Number(saleForm.paidAmount),
+      saleDate: saleForm.saleDate || undefined,
+    });
   };
 
   const columns = [
@@ -163,7 +173,7 @@ const SaleReport = () => {
           </select>
           <select value={saleForm.agentId} onChange={(event) => setSaleForm((current) => ({ ...current, agentId: event.target.value }))} className="border px-3 py-2 text-sm" required>
             <option value="">Select agent</option>
-            {agents.map((agent) => (
+            {agents.map((agent: AgentOption) => (
               <option key={agent.id} value={agent.id}>
                 {agent.name} ({agent.userId})
               </option>
@@ -179,7 +189,7 @@ const SaleReport = () => {
         </form>
       ) : null}
 
-      <LegacyTable title="Sale Report" dateRange={true} columns={columns} data={loading ? [] : tableData} />
+      <LegacyTable title="Sale Report" dateRange={true} columns={columns} data={salesLoading ? [] : tableData} />
     </div>
   );
 };
