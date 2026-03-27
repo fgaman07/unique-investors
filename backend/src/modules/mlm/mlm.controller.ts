@@ -391,6 +391,13 @@ export const getAllLegReport = async (req: AuthRequest, res: Response): Promise<
   try {
     const userId = req.user!.role === 'ADMIN' && req.query.targetUserId ? (req.query.targetUserId as string) : req.user!.id;
     const { from, to } = req.query;
+    const cacheKey = `mlm:all-leg:${userId}:${from || 's'}:${to || 'e'}`;
+    
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.json(cached);
+      return;
+    }
 
     const allUsers = await prisma.user.findMany({
       select: { id: true, userId: true, name: true, mobile: true, rank: true, sponsorId: true, joiningDate: true },

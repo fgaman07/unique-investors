@@ -1,0 +1,10 @@
+{
+  "name": "unique-investors-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "node init && cd backend && npm run dev",
+    "dev:frontend": "node init && cd frontend && npm run dev",
+    "dev": "node init && npm run dev:backend"
+  }
+}

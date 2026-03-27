@@ -30,33 +30,17 @@ export const getStats = async (req: AuthRequest, res: Response): Promise<void> =
     // Direct members (Level 1 downline)
     const directMembers = await prisma.user.count({ where: { sponsorId: userId } });
 
-    // Total downline (all levels)
-    const allUsers = await prisma.user.findMany({ select: { id: true, sponsorId: true } });
-    
-    // O(N) Map for instantaneous lookups instead of O(N^2) array filtering that blocks event loop
-    const childrenMap = new Map<string, typeof allUsers>();
-    for (const u of allUsers) {
-      if (u.sponsorId) {
-        if (!childrenMap.has(u.sponsorId)) childrenMap.set(u.sponsorId, []);
-        childrenMap.get(u.sponsorId)!.push(u);
-      }
-    }
-
-    let totalDownline = 0;
-    const queue = [userId];
-    const visited = new Set<string>();
-    visited.add(userId);
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      const children = childrenMap.get(current) || [];
-      for (const child of children) {
-        if (!visited.has(child.id)) {
-          visited.add(child.id);
-          totalDownline++;
-          queue.push(child.id);
-        }
-      }
-    }
+    // Total downline (all levels) - Optimized with Recursive CTE to prevent event-loop blocking
+    const [{ count }]: any = await prisma.$queryRaw`
+      WITH RECURSIVE downline AS (
+        SELECT id FROM "User" WHERE "sponsorId" = ${userId}
+        UNION ALL
+        SELECT u.id FROM "User" u
+        JOIN downline d ON u."sponsorId" = d.id
+      )
+      SELECT COUNT(*)::int as count FROM downline;
+    `;
+    const totalDownline = count || 0;
 
     // Commissions
     const commGroups = await prisma.commissionLedger.groupBy({

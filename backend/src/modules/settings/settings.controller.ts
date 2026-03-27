@@ -41,7 +41,7 @@ const defaultCommissionSettings = [
   { level: 5, label: 'Level 5 Incentive', percentage: 1, isActive: true },
 ];
 
-const ensureCompanySettings = async () => {
+export const ensureCompanySettings = async () => {
   const existing = await prisma.companySettings.findFirst();
   if (existing) {
     return existing;
@@ -50,7 +50,7 @@ const ensureCompanySettings = async () => {
   return prisma.companySettings.create({ data: defaultCompanySettings });
 };
 
-const ensureCommissionSettings = async () => {
+export const ensureCommissionSettings = async () => {
   const existing = await prisma.commissionSetting.findMany({ orderBy: { level: 'asc' } });
   if (existing.length > 0) {
     return existing;

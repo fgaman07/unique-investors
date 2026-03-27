@@ -20,22 +20,17 @@ export const getActiveCommissionPlan = async () => {
 export const distributeCommissions = async (agentId: string, transactionAmount: number, receiptNo: string, customDirectCommission?: number | null): Promise<void> => {
   const commissionPlan = await getActiveCommissionPlan();
 
-  // Pre-fetch the entire sponsor chain in ONE query instead of N sequential queries
-  // Walk up the chain collecting user IDs, then batch-insert commissions
-  const chainUsers: { id: string; sponsorId: string | null }[] = [];
-  let currentId: string | null = agentId;
-
-  // Fetch all needed users in a single query by walking the chain
-  // We need at most commissionPlan.length users in the chain
-  for (let i = 0; i < commissionPlan.length && currentId; i++) {
-    const user = await prisma.user.findUnique({
-      where: { id: currentId },
-      select: { id: true, sponsorId: true },
-    });
-    if (!user) break;
-    chainUsers.push(user);
-    currentId = user.sponsorId;
-  }
+  // Fetch the entire sponsor chain in ONE query using a Recursive CTE
+  const chainUsers: { id: string; sponsorId: string | null }[] = await prisma.$queryRaw`
+    WITH RECURSIVE sponsors AS (
+      SELECT id, "sponsorId", 0 as level FROM "User" WHERE id = ${agentId}
+      UNION ALL
+      SELECT u.id, u."sponsorId", s.level + 1 FROM "User" u
+      JOIN sponsors s ON u.id = s."sponsorId"
+      WHERE s.level < ${commissionPlan.length - 1}
+    )
+    SELECT id, "sponsorId" FROM sponsors ORDER BY level ASC;
+  `;
 
   // Batch-create all commission entries at once
   const commissionsToCreate = [];

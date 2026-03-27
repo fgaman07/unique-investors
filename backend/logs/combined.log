@@ -196,3 +196,39 @@
 {"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:54:44"}
 {"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 12:58:47"}
 {"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 12:58:47"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 12:58:53"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 12:58:53"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 12:58:53"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 12:58:53"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 12:58:53"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 12:59:05"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 12:59:05"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 12:59:09"}
+{"level":"info","message":"[Cache] Invalidated 1 local memory keys for pattern: settings:company","timestamp":"2026-03-27 13:05:19"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 15:34:25"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 15:34:25"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 15:34:25"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 15:34:25"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 15:34:25"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 15:34:37"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 15:34:37"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 15:34:41"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 15:35:08"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 15:35:08"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 15:37:04"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 15:37:04"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 15:37:04"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 15:37:04"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 15:37:04"}
+{"level":"info","message":"[Cache] No REDIS_URL found. Using native Node.js Memory Cache fallback.","timestamp":"2026-03-27 15:37:11"}
+{"level":"info","message":"[Worker] No REDIS_URL found. MLM Background Worker not started.","timestamp":"2026-03-27 15:37:11"}
+{"level":"info","message":"[Server] Unique Investors API running on http://localhost:5000","timestamp":"2026-03-27 15:37:11"}
+{"level":"info","message":"[Cache Warmer] Booting up cache pre-hydration routine...","timestamp":"2026-03-27 15:37:11"}
+{"level":"info","message":"[Cache Warmer] Warming Admin Dashboard Stats...","timestamp":"2026-03-27 15:37:11"}
+{"level":"info","message":"[Cache Warmer] Active! Admin Dashboard cached in RAM.","timestamp":"2026-03-27 15:37:15"}
+{"level":"info","message":"[Cache Warmer] Warming Master Inventory Matrix...","timestamp":"2026-03-27 15:37:15"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 15:37:18"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 15:37:19"}
+{"level":"info","message":"[Cache Warmer] Inventory successfully injected into node-RAM.","timestamp":"2026-03-27 15:37:19"}
+{"level":"info","message":"[Server] SIGINT received. Shutting down gracefully...","timestamp":"2026-03-27 16:13:48"}
+{"level":"info","message":"[Server] Database disconnected. Goodbye.","timestamp":"2026-03-27 16:13:48"}
