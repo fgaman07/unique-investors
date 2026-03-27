@@ -24,13 +24,28 @@ const WelcomeLetter = () => {
         queryFn: async () => {
             const { data } = await api.get('/settings/company');
             return data;
-        }
+        },
+        enabled: !!user
     });
 
     const loading = loadingTarget || loadingCompany;
 
-    if (loading || !targetData || !companyData) {
-        return <div className="p-20 text-center font-bold text-blue-900">Loading Letter Details...</div>;
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <div className="w-10 h-10 border-4 border-brand-accent/20 border-t-brand-accent rounded-full animate-spin"></div>
+                <div className="text-sm font-bold text-brand-primary uppercase tracking-widest animate-pulse">Loading Letter Details...</div>
+            </div>
+        );
+    }
+
+    if (!targetData || !companyData) {
+        return (
+            <div className="p-20 text-center">
+                <div className="text-brand-danger font-bold uppercase mb-2">Data Unavailable</div>
+                <div className="text-sm text-brand-muted">Unable to retrieve letter details. Please try refreshing the page.</div>
+            </div>
+        );
     }
 
     return (
